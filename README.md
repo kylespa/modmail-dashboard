@@ -1,6 +1,6 @@
 # Modmail Dashboard
 
-A Vue 3 port of [vap0r1ze's dashboard](https://github.com/Vap0r1ze/DaveDashboard) for [Dragory's modmail bot](https://github.com/dragory/modmailbot). Originally written for the [Dyno fork](https://github.com/flexlabs/modmailbot) of it.
+A Vue 3 port of [vap0r1ze's dashboard](https://github.com/Vap0r1ze/DaveDashboard) for [Dragory's modmail bot](https://github.com/dragory/modmailbot). Originally written for [Dave](https://github.com/flexlabs/modmailbot), the heavily-modified fork of it used by Dyno.
 
 ## Installation Instructions
 Note: While you can manually modify files yourself, I recommend using either [atlacord](https://github.com/atlacord/modmailbot) (basic) or [Dyno](https://github.com/FlexLabs/modmailbot/tree/dyno) (heavily-modified)'s forks. I 
