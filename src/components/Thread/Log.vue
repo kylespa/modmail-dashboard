@@ -1,7 +1,7 @@
 <template>
   <div class="log mb-3 pt-4" @mouseover="animated = true" @mouseout="animated = false">
     <div class="flex">
-      <div class="w-16">
+      <div class="avatar-col w-16">
         <img class="avatar select-none" :src="getAvatarURL(log)">
       </div>
       <div class="flex-1">
@@ -10,9 +10,9 @@
           <span class="timestamp">{{formattedTime}}</span>
         </p>
           <div v-for="msg in log.messages" class="mt-2" :key="msg.id">
-            <div class="flex">
+            <div class="msg-row flex">
               <div class="message flex-1" v-html="msg.body"></div>
-              <div v-if="settings.devMode && msg.dm_id" class="pl-3">
+              <div v-if="settings.devMode && msg.dm_id" class="dm-id pl-3">
                 <code class="id">{{ msg.dm_id }}</code>
               </div>
             </div>
@@ -102,6 +102,31 @@ export default {
     @include themify {
       color: themed('text-muted');
     }
+  }
+}
+
+@media (max-width: $mobile-max) {
+  .avatar-col {
+    width: 3rem;
+  }
+  .avatar {
+    height: 2rem;
+    width: 2rem;
+  }
+  // Message IDs (dev mode) drop below the message. A column, not a wrapping
+  // row: with wrap, the full-width ID shares a line with the message and
+  // squeezes it to zero width.
+  .msg-row {
+    flex-direction: column;
+  }
+  // Let long words and URLs wrap instead of widening the page
+  .message {
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .dm-id {
+    padding-left: 0;
   }
 }
 </style>

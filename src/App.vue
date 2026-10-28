@@ -4,8 +4,14 @@
       <loader class="h-screen" v-if="!connected"/>
       <div class="flex" v-else>
         <sidebar :users="users" :selected="user" :settingsCategory="settingsCategory" v-model:collapsed="sidebarCollapsed"
+        :mobile="isMobile" v-model:open="sidebarOpen"
         @selectUser="selectUser" @selectCategory="selectCategory"/>
-        <div class="flex-1 h-screen">
+        <transition name="fade">
+          <div v-if="isMobile && sidebarOpen" class="sidebar-backdrop global-trans-ignore" @click="sidebarOpen = false"></div>
+        </transition>
+        <mobile-bar v-if="isMobile && connected" :filter="$route.name === 'threads' ? selectedUserName : null"
+        @menu="sidebarOpen = true" @clearFilter="selectUser(null)"/>
+        <div class="content-area flex-1 h-screen" :class="{ mobile: isMobile }">
           <router-view :_thread="thread" :settings="settings" :category="settingsCategory" :user="user"
           @changeSetting="changeSetting" @close="openThread(null)" @openThread="openThread"/>
         </div>
@@ -18,11 +24,15 @@
 import { computed } from 'vue'
 import superagent from 'superagent'
 import Sidebar from './components/Sidebar/Sidebar.vue'
+import MobileBar from './components/MobileBar.vue'
 import Loader from './components/Loader.vue'
+
+// Keep in sync with $mobile-max in variables.scss
+const MOBILE_QUERY = '(max-width: 767px)'
 
 export default {
   components: {
-    Sidebar, Loader
+    Sidebar, MobileBar, Loader
   },
   data () {
     return {
@@ -31,6 +41,9 @@ export default {
       thread: null,
       connected: false,
       sidebarCollapsed: false,
+      // On mobile the sidebar is an off-canvas drawer controlled by sidebarOpen
+      isMobile: window.matchMedia(MOBILE_QUERY).matches,
+      sidebarOpen: false,
       theme: JSON.parse(localStorage.theme || '0') || 'dark',
       pageSize: JSON.parse(localStorage.pageSize || '15'),
       timeFormat: JSON.parse(localStorage.timeFormat || '"yyyy-MM-dd HH:mm:ss"'),
@@ -49,9 +62,17 @@ export default {
     user () {
       if (this.thread)
         this.thread = null
+    },
+    // Close the drawer whenever the user navigates somewhere
+    '$route' () {
+      this.sidebarOpen = false
     }
   },
   computed: {
+    selectedUserName () {
+      const user = this.users.find(u => u.id === this.user)
+      return user ? user.name : null
+    },
     themeName () {
       return {
         [`theme-${this.theme}`]: true
@@ -71,6 +92,12 @@ export default {
   methods: {
     selectUser (id) {
       this.user = id
+      this.sidebarOpen = false
+    },
+    updateMobile (ev) {
+      this.isMobile = ev.matches
+      if (!ev.matches)
+        this.sidebarOpen = false
     },
     changeSetting (setting, value) {
       localStorage[setting] = JSON.stringify(value)
@@ -87,6 +114,13 @@ export default {
       else
         this.$router.push('/')
     }
+  },
+  mounted () {
+    this.mobileQuery = window.matchMedia(MOBILE_QUERY)
+    this.mobileQuery.addEventListener('change', this.updateMobile)
+  },
+  beforeUnmount () {
+    this.mobileQuery.removeEventListener('change', this.updateMobile)
   },
   created () {
     // Initial users
@@ -185,6 +219,28 @@ code {
 .scroller-small:not(:hover)::-webkit-scrollbar-thumb { background: transparent; }
 .w-20 { width: 5rem; }
 .h-20 { height: 5rem; }
+// Mobile browsers' 100vh includes the area behind the address bar
+#app-root .h-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+.content-area {
+  min-width: 0;
+  &.mobile {
+    // Room for the fixed mobile bar. Also makes this the containing block for
+    // absolutely positioned banners inside views.
+    padding-top: 2.75rem;
+    position: relative;
+  }
+}
+.sidebar-backdrop {
+  background: rgba(#000, .5);
+  inset: 0;
+  position: fixed;
+  z-index: 40;
+}
+.fade-enter-active, .fade-leave-active { transition: opacity .3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 .user.selected .emoji {
   filter: saturate(0) brightness(10);
 }

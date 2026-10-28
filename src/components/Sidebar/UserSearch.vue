@@ -67,4 +67,11 @@ input {
   cursor: pointer;
   display: none;
 }
+// Touch screens have no hover, so the clear button would never appear
+@media (hover: none) {
+  .clear {
+    display: inherit;
+    padding-left: .5rem;
+  }
+}
 </style>

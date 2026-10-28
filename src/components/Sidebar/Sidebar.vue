@@ -1,9 +1,9 @@
 <template>
-  <div class="sidebar global-trans-ignore flex flex-col h-screen w-64" :class="{ collapsed }">
+  <div class="sidebar global-trans-ignore flex flex-col h-screen w-64" :class="{ collapsed: isCollapsed, mobile, open }">
     <div class="flex h-16">
       <div class="flex flex-col select-none">
         <div class="btn-collapse flex flex-1 items-center justify-center w-8 h-8" @click="collapse">
-          <i class="text-xl global-trans-ignore fa fa-arrow-left"></i>
+          <i class="text-xl global-trans-ignore fa" :class="mobile ? 'fa-times' : 'fa-arrow-left'"></i>
         </div>
         <div v-if="$route.name === 'settings'" @click="goBack"
         class="btn-threads flex flex-1 items-center justify-center w-8 h-8">
@@ -18,11 +18,11 @@
       </div>
       <user-search v-else :_search="search" @update="updateSearch"/>
     </div>
-    <div v-if="collapsed"></div>
+    <div v-if="isCollapsed"></div>
     <settings-categories v-else-if="$route.name === 'settings'" :category="settingsCategory" @select="selectCategory"/>
     <no-users v-else-if="!searchedUsers.length"/>
     <template v-else>
-      <p class="recent-users select-none text-sm font-semibold px-4 pb-2">Recent Users</p>
+      <p class="recent-users select-none text-sm font-semibold px-4 pt-2 pb-2">Recent Users</p>
       <recycle-scroller :items="searchedUsers" :item-size="40" key-field="id" class="scroller-small flex-1 px-2"
       v-slot="{ item }">
         <user-tab :selected="selected === item.id" :user="item" @selectUser="selectUser"/>
@@ -45,16 +45,23 @@ export default {
   props: {
     users: { type: Array, required: true },
     collapsed: Boolean,
+    // Mobile: the sidebar is an off-canvas drawer shown while `open`
+    mobile: Boolean,
+    open: Boolean,
     selected: String,
     settingsCategory: { type: String, required: true }
   },
-  emits: ['selectUser', 'selectCategory', 'update:collapsed'],
+  emits: ['selectUser', 'selectCategory', 'update:collapsed', 'update:open'],
   data () {
     return {
       search: ''
     }
   },
   computed: {
+    // The thin collapsed strip only exists on desktop
+    isCollapsed () {
+      return !this.mobile && this.collapsed
+    },
     searchedUsers () {
       return this.users.filter(user => {
         return user.name.toLowerCase().includes(this.search.toLowerCase())
@@ -70,7 +77,10 @@ export default {
       this.search = search
     },
     collapse () {
-      this.$emit('update:collapsed', !this.collapsed)
+      if (this.mobile)
+        this.$emit('update:open', false)
+      else
+        this.$emit('update:collapsed', !this.collapsed)
     },
     selectCategory (category) {
       this.$emit('selectCategory', category)
@@ -136,5 +146,32 @@ export default {
 }
 .area-title.flex-1.flex.justify-center.items-center {
   padding: 12px 0;
+}
+
+@media (max-width: $mobile-max) {
+  // Off-canvas drawer. Hidden (and unfocusable) until `open`.
+  .sidebar.mobile {
+    box-shadow: none;
+    left: 0;
+    max-width: 85vw;
+    position: fixed;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform .3s ease-in-out, box-shadow .3s ease-in-out, visibility 0s linear .3s;
+    visibility: hidden;
+    width: 18rem;
+    z-index: 50;
+    &.open {
+      box-shadow: 0 0 2rem rgba(#000, .5);
+      transform: none;
+      transition: transform .3s ease-in-out, box-shadow .3s ease-in-out, visibility 0s;
+      visibility: visible;
+    }
+    & .btn-collapse,
+    & .btn-settings,
+    & .btn-threads {
+      width: 2.75rem;
+    }
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="settings scroller h-full px-16 pt-4">
+  <div class="settings-page scroller h-full pt-4">
     <settings-themes v-if="$route.params.category === 'themes'" :current="settings.theme"
     @changeSetting="changeSetting"/>
     <settings-values v-for="d in visibleCategories" :key="d[1]"
@@ -57,3 +57,19 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import '@/variables.scss';
+
+.settings-page {
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+@media (max-width: $mobile-max) {
+  .settings-page {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+}
+</style>

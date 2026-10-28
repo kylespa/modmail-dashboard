@@ -1,6 +1,10 @@
 $spacing: 1;
 $red: #f04747;
 
+// Mobile breakpoint. Keep in sync with MOBILE_QUERY in App.vue.
+$mobile-max: 767px;
+$desktop-min: 768px;
+
 $sans-serif: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 $mono: 'Source Code Pro', 'Courier New', Courier, monospace;
 

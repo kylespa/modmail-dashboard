@@ -1,6 +1,6 @@
 <template>
-  <div class="scroller px-16 pt-4 h-full">
-    <p class="text-center text-4xl">{{ includePrivate ? '' : 'Closed '}}Threads</p>
+  <div class="page scroller pt-4 h-full">
+    <p class="page-title text-center text-4xl">{{ includePrivate ? '' : 'Closed '}}Threads</p>
     <div v-if="includePrivate" class="filter flex flex-wrap items-center justify-center select-none mt-4">
       <div class="filter-group flex items-center mx-3 my-1">
         <span class="filter-label font-semibold mr-3">Privacy</span>
@@ -18,6 +18,20 @@
             :class="{ active: statusFilter === option.value }" @click="selectStatus(option.value)">
             {{ option.label }}
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile only: the table header (and its sort buttons) is hidden on small screens -->
+    <div class="sort-bar items-center justify-center select-none mt-2">
+      <span class="filter-label font-semibold mr-3">Sort</span>
+      <div class="filter-options flex">
+        <div class="filter-option" :class="{ active: sort === 'created_at' }" @click="sortTime">
+          Created
+          <i v-if="sort === 'created_at'" class="fa ml-1" :class="reverse ? 'fa-sort-asc' : 'fa-sort-desc'"></i>
+        </div>
+        <div v-if="includePrivate" class="filter-option" :class="{ active: sort === 'status' }" @click="sortStatus">
+          Status
+          <i v-if="sort === 'status'" class="fa ml-1" :class="reverse ? 'fa-sort-asc' : 'fa-sort-desc'"></i>
         </div>
       </div>
     </div>
@@ -213,6 +227,13 @@ export default {
 <style lang="scss" scoped>
 @import '@/variables.scss';
 
+.page {
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+.sort-bar {
+  display: none;
+}
 table {
   border-collapse: separate;
 }
@@ -281,6 +302,44 @@ th:last-child {
 .result-count {
   @include themify {
     color: themed('text-muted');
+  }
+}
+
+@media (max-width: $mobile-max) {
+  .page {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+  .page-title {
+    font-size: 1.75rem;
+  }
+  // Each filter gets its own row, label on the left and options on the right
+  .filter-group {
+    justify-content: space-between;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
+  // Bigger touch targets
+  .filter-option {
+    padding: $spacing * .5rem $spacing * .875rem;
+  }
+  .sort-bar {
+    display: flex;
+  }
+  // Thread rows become cards (see ThreadRow.vue), so the table must stop being one
+  table, tbody {
+    display: block;
+  }
+  thead {
+    display: none;
+  }
+  .loader, .empty {
+    display: block;
+    & td {
+      border-radius: $spacing * .5rem;
+      display: block;
+    }
   }
 }
 </style>

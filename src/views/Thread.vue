@@ -1,11 +1,11 @@
 <template>
-  <div class="h-screen flex flex-col">
+  <div class="h-full flex flex-col">
     <div v-if="thread" class="flex-1 flex flex-col">
       <div class="top-bar h-16 flex">
         <div class="btnBack w-8 select-none flex items-center justify-center" @click="close">
           <i class="text-xl fa fa-times"></i>
         </div>
-        <div class="w-8 select-none flex flex-col">
+        <div class="btn-col w-8 select-none flex flex-col">
           <div class="btnMsgToggle tippy-r select-none flex-1 flex items-center justify-center" :class="{ on: showMessages }"
           title="Toggle Channel Messages" @click="toggleMsgs">
             <i class="text-lg fa fa-comments">
@@ -16,15 +16,15 @@
             <i class="fa fa-clone"></i>
           </div>
         </div>
-        <div class="flex-1 flex items-center px-4">
-          <p class="text-4xl mr-3">
+        <div class="top-info flex-1 flex items-center px-4">
+          <p class="thread-name text-4xl mr-3">
             <user class="tippy-b-lg" :title="`Account Age: ${accountAge || '[ Not Found ]'}`" :user="thread.user_name"/>
           </p>
           <div v-if="note" class="note h-12 flex items-center pl-3">
             <p class="text-sm" ref="note">{{ note }}</p>
           </div>
         </div>
-        <div v-if="settings.devMode" class="flex flex-col w-8">
+        <div v-if="settings.devMode" class="btn-col flex flex-col w-8">
           <div class="btnOther copyBtn tippy-l flex-1 w-8 select-none flex items-center justify-center" :title="'Copy User ID'"
           :data-clipboard-text="thread.user_id">
             <i class="text-lg fa fa-user"></i>
@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div v-if="initialMessages && logs.length" class="flex-1 scroller px-8 flex relative" ref="logs" @scroll="updateScroll">
+      <div v-if="initialMessages && logs.length" class="logs-area flex-1 scroller px-8 flex relative" ref="logs" @scroll="updateScroll">
         <div class="flex-1">
           <log v-for="log in visibleLogs" :key="log.id" :log="log" :settings="settings"/>
         </div>
@@ -53,7 +53,7 @@
         <p class="action text-sm font-semibold px-2" @click="unread = 0">Mark as Read</p>
       </div>
     </div>
-    <loader v-else class="h-screen"/>
+    <loader v-else class="h-full"/>
   </div>
 </template>
 
@@ -298,5 +298,61 @@ export default {
   right: calc(2rem + 10px);
   transition: width .3s ease-in-out;
   width: calc(100vw - 18rem - (2rem + 10px));
+}
+
+@media (max-width: $mobile-max) {
+  // Two stacked lines: name, then the note
+  .top-info {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 .75rem;
+  }
+  .thread-name {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+    margin-right: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  // The global rule sizes emoji in titles for the desktop font size
+  .top-bar .thread-name :deep(.emoji) {
+    height: 1.25rem;
+  }
+  .note {
+    border-left: 0;
+    height: auto;
+    max-width: 100%;
+    min-width: 0;
+    padding-left: 0;
+    & p {
+      font-size: .75rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  // Bigger touch targets
+  .btnBack,
+  .btn-col,
+  .btn-col > .w-8 {
+    width: 2.75rem;
+  }
+  .logs-area {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+  // The sidebar no longer takes space beside the thread, so the banners span the full width.
+  // They're positioned against .content-area (see App.vue).
+  .scroll-bottom, .new-messages {
+    &, &.long {
+      left: .5rem;
+      right: .5rem;
+      width: auto;
+    }
+  }
 }
 </style>

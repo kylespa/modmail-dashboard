@@ -91,4 +91,12 @@ export default {
   margin: 0 .5rem;
   width: 2rem;
 }
+
+// Seven buttons at the desktop size are wider than a phone screen
+@media (max-width: $mobile-max) {
+  .btnPage {
+    margin: 0 .15rem;
+    width: 2.125rem;
+  }
+}
 </style>

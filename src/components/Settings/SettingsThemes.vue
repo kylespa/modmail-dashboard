@@ -80,6 +80,16 @@ export default {
   border-bottom-right-radius: .25rem;
 }
 
+@media (max-width: $mobile-max) {
+  .theme-selector {
+    text-align: center;
+  }
+  .theme-selector > div {
+    padding-left: .5rem;
+    padding-right: .5rem;
+  }
+}
+
 @include theme-previews () {
   .sidebar {
     background: themed('bg-dark-1');
