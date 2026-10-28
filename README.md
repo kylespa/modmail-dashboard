@@ -16,8 +16,8 @@ Note: While you can manually modify files yourself, I recommend using either [at
 1. Clone this repository into your bot's **`src`** directory.
 2. In the dashboard directory, build the Vue app using **`npm run build`**. Alternatively, my fork has an additional script to take care of building when starting the bot.
 2. Add **`redirectPath`**, **`dashAuthRoles[]`**, and **`dashAuthUser[]`** arrays to your bot's config file.
-3. Modify your bot's webserver plugin to add API routes. You can use either of the aforementioned forks as a reference.
-4. Add **`src/oauth2.js`** to enable Discord authentication. You can use either of the aforementioned forks as a reference.
+3. Modify your bot's webserver plugin to add API routes. Check the examples directory in this repository for a reference.
+4. Add **`src/oauth2.js`** to enable Discord authentication. You can use either the examples directory in this repository or either of the aforementioned forks as a reference.
 5. Install **`jsonwebtoken`** and **`superagent`** using your favorite package manager.
 6. Start the bot
 
