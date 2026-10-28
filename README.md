@@ -2,7 +2,7 @@
 
 A Vue 3 port of [vap0r1ze's dashboard](https://github.com/Vap0r1ze/DaveDashboard) for [Dragory's modmail bot](https://github.com/dragory/modmailbot). Originally written for [Dave](https://github.com/FlexLabs/modmailbot/tree/dyno), the heavily-modified fork of it used by Dyno.
 
-### Improvements
+## Improvements
 This version features several improvements to modernize it.
 - Quicker loading times
 - Optimized for mobile
@@ -21,5 +21,5 @@ Note: While you can manually modify files yourself, I recommend using either [at
 5. Install **`jsonwebtoken`** and **`superagent`** using your favorite package manager.
 6. Start the bot
 
-# Example Preview
+## Example Preview
 ![](preview.gif)
