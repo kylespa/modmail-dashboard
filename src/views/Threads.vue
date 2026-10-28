@@ -1,6 +1,26 @@
 <template>
   <div class="scroller px-16 pt-4 h-full">
     <p class="text-center text-4xl">{{ includePrivate ? '' : 'Closed '}}Threads</p>
+    <div v-if="includePrivate" class="filter flex flex-wrap items-center justify-center select-none mt-4">
+      <div class="filter-group flex items-center mx-3 my-1">
+        <span class="filter-label font-semibold mr-3">Privacy</span>
+        <div class="filter-options flex">
+          <div v-for="option in privacyOptions" :key="option.value" class="filter-option"
+            :class="{ active: privacyFilter === option.value }" @click="selectPrivacy(option.value)">
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
+      <div class="filter-group flex items-center mx-3 my-1">
+        <span class="filter-label font-semibold mr-3">Status</span>
+        <div class="filter-options flex">
+          <div v-for="option in statusOptions" :key="option.value" class="filter-option"
+            :class="{ active: statusFilter === option.value }" @click="selectStatus(option.value)">
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
+    </div>
     <table cellspacing="0" class="my-4 w-full">
       <thead class="select-none">
         <tr>
@@ -31,18 +51,21 @@
         </tr>
       </thead>
       <tbody>
-        <thread-row v-for="thread in threads" :key="thread.id"
+        <thread-row v-for="thread in filteredThreads" :key="thread.id"
           :thread="thread" :settings="settings" @open="openThread"/>
-        <tr v-if="!threads.length" class="loader">
+        <tr v-if="loading" class="loader">
           <td colspan="4" :style="{ height: `${settings.pageSize * 2}rem` }">
             <loader/>
           </td>
+        </tr>
+        <tr v-else-if="!filteredThreads.length" class="empty">
+          <td colspan="4">{{ emptyText }}</td>
         </tr>
       </tbody>
     </table>
     <paginator v-if="pageCount > 1" :pageCount="pageCount"
       :page="page" @select="selectPage"/>
-    <p class="result-count font-semibold text-center">Showing {{ threads.length }} out of {{ threadCount }} results</p>
+    <p class="result-count font-semibold text-center">Showing {{ filteredThreads.length }} out of {{ threadCount }} results</p>
   </div>
 </template>
 
@@ -70,7 +93,33 @@ export default {
       reverse: true,
       sort: 'status',
       threadCount: 0,
-      includePrivate: false
+      includePrivate: false,
+      loading: true,
+      requestId: 0,
+      privacyFilter: 'all',
+      statusFilter: 'all',
+      privacyOptions: [
+        { value: 'all', label: 'All' },
+        { value: 'public', label: 'Public' },
+        { value: 'private', label: 'Private' }
+      ],
+      statusOptions: [
+        { value: 'all', label: 'All' },
+        { value: 'open', label: 'Open' },
+        { value: 'closed', label: 'Closed' }
+      ]
+    }
+  },
+  computed: {
+    emptyText () {
+      const active = [this.statusFilter, this.privacyFilter].filter(f => f !== 'all')
+      return `No ${active.length ? active.join(' ') + ' ' : ''}threads found`
+    },
+    filteredThreads () {
+      if (!this.includePrivate || this.privacyFilter === 'all')
+        return this.threads
+      const wantPrivate = this.privacyFilter === 'private'
+      return this.threads.filter(thread => !!thread.isPrivate === wantPrivate)
     }
   },
   watch: {
@@ -101,16 +150,39 @@ export default {
         this.reverse = !this.reverse
       this.refreshThreads()
     },
+    selectPrivacy (value) {
+      if (this.privacyFilter === value)
+        return
+      this.privacyFilter = value
+      this.page = 1
+      this.refreshThreads()
+    },
+    selectStatus (value) {
+      if (this.statusFilter === value)
+        return
+      this.statusFilter = value
+      this.page = 1
+      this.refreshThreads()
+    },
     refreshThreads (soft) {
-      if (!soft)
+      if (!soft) {
         this.threads = []
+        this.loading = true
+      }
+      const requestId = ++this.requestId
       let q = `?limit=${this.settings.pageSize}&page=${this.page-1}`
         + `&sort_by=${this.sort}`
       if (this.user)
         q += `&user=${this.user}`
       if (this.reverse)
         q += '&reverse'
+      if (this.privacyFilter !== 'all')
+        q += `&privacy=${this.privacyFilter}`
+      if (this.statusFilter !== 'all')
+        q += `&status=${this.statusFilter}`
       superagent.get(`/threads${q}`).end((err, res) => {
+        if (requestId !== this.requestId)
+          return
         if (err) {
           console.log(err)
         } else {
@@ -118,6 +190,7 @@ export default {
           this.threads = res.body.threads
           this.threadCount = res.body.total
           this.includePrivate = res.body.includePrivate
+          this.loading = false
         }
       })
     },
@@ -157,7 +230,7 @@ th:first-child {
 th:last-child {
   border-top-right-radius: $spacing * .5rem;
 }
-.loader {
+.loader, .empty {
   & td {
     @include themify {
       background: themed('bg-dark-2');
@@ -165,6 +238,44 @@ th:last-child {
     border-bottom-left-radius: $spacing * .5rem;
     border-bottom-right-radius: $spacing * .5rem;
     padding: 0;
+  }
+}
+.empty td {
+  @include themify {
+    color: themed('text-muted');
+  }
+  padding: $spacing * 1rem;
+  text-align: center;
+}
+.filter-label {
+  @include themify {
+    color: themed('text-muted');
+  }
+}
+.filter-options {
+  @include themify {
+    background: themed('bg-dark-2');
+  }
+  border-radius: $spacing * .5rem;
+  overflow: hidden;
+}
+.filter-option {
+  @include themify {
+    color: themed('text');
+  }
+  cursor: pointer;
+  padding: $spacing * .25rem $spacing * .75rem;
+  transition: background .3s ease-in-out, color .3s ease-in-out;
+  &:hover {
+    @include themify {
+      background: themed('bg-dark-3');
+    }
+  }
+  &.active {
+    @include themify {
+      background: themed('primary');
+    }
+    color: #fff;
   }
 }
 .result-count {

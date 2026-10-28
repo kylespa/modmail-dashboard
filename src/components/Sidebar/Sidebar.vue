@@ -21,10 +21,13 @@
     <div v-if="collapsed"></div>
     <settings-categories v-else-if="$route.name === 'settings'" :category="settingsCategory" @select="selectCategory"/>
     <no-users v-else-if="!searchedUsers.length"/>
-    <recycle-scroller v-else :items="searchedUsers" :item-size="40" key-field="id" class="scroller-small flex-1 px-2"
-    v-slot="{ item }">
-      <user-tab :selected="selected === item.id" :user="item" @selectUser="selectUser"/>
-    </recycle-scroller>
+    <template v-else>
+      <p class="recent-users select-none text-sm font-semibold px-4 pb-2">Recent Users</p>
+      <recycle-scroller :items="searchedUsers" :item-size="40" key-field="id" class="scroller-small flex-1 px-2"
+      v-slot="{ item }">
+        <user-tab :selected="selected === item.id" :user="item" @selectUser="selectUser"/>
+      </recycle-scroller>
+    </template>
   </div>
 </template>
 
@@ -109,6 +112,12 @@ export default {
 }
 .area-title {
   overflow: hidden;
+}
+.recent-users {
+  @include themify {
+    color: themed('text-muted');
+  }
+  transition: color .3s ease-in-out;
 }
 
 .collapsed {
