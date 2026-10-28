@@ -1,8 +1,8 @@
 <template>
   <div class="page scroller pt-4 h-full">
     <p class="page-title text-center text-4xl">{{ includePrivate ? '' : 'Closed '}}Threads</p>
-    <div v-if="includePrivate" class="filter flex flex-wrap items-center justify-center select-none mt-4">
-      <div class="filter-group flex items-center mx-3 my-1">
+    <div class="filter flex flex-wrap items-center justify-center select-none mt-4">
+      <div v-if="includePrivate" class="filter-group flex items-center mx-3 my-1">
         <span class="filter-label font-semibold mr-3">Privacy</span>
         <div class="filter-options flex">
           <div v-for="option in privacyOptions" :key="option.value" class="filter-option"
