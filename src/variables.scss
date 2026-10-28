@@ -1,0 +1,166 @@
+$spacing: 1;
+$red: #f04747;
+
+$sans-serif: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$mono: 'Source Code Pro', 'Courier New', Courier, monospace;
+
+$themes: (
+  discord: (
+    primary: #7289da,
+    bg: #36393f,
+    bg-dark-1: #2f3136,
+    bg-dark-2: #2a2c31,
+    bg-dark-3: #232529,
+    text: #ddd,
+    text-muted: #aaa,
+  ),
+  dark: (
+    primary: #336fd5,
+    bg: #333,
+    bg-dark-1: #2b2b2b,
+    bg-dark-2: #272727,
+    bg-dark-3: #222,
+    text: #ddd,
+    text-muted: #aaa,
+  ),
+  light: (
+    primary: #336fd5,
+    bg: #fff,
+    bg-dark-1: #eee,
+    bg-dark-2: #ddd,
+    bg-dark-3: #ccc,
+    text: #333,
+    text-muted: #888,
+  ),
+  monokai: (
+    primary: #e9236a,
+    bg: #191919,
+    bg-dark-1: #1e1e1e,
+    bg-dark-2: #232323,
+    bg-dark-3: darken(#232323, 5%),
+    text: #e6e7e9,
+    text-muted: #9c9da2,
+  ),
+  monokai-sublime: (
+    primary: #e9236a,
+    bg: #1f201b,
+    bg-dark-1: #272822,
+    bg-dark-2: #2e2f29,
+    bg-dark-3: darken(#2e2f29, 5%),
+    text: #e6e7e9,
+    text-muted: #9c9da2,
+  ),
+  dark-coder: (
+    primary: #d85376,
+    bg: #141721,
+    bg-dark-1: #181b27,
+    bg-dark-2: #1e212c,
+    bg-dark-3: darken(#1e212c, 5%),
+    text: #e6e7e9,
+    text-muted: #9c9da2,
+  ),
+  cobalt: (
+    primary: #d88400,
+    bg: #0d1923,
+    bg-dark-1: #101d2a,
+    bg-dark-2: #132231,
+    bg-dark-3: darken(#132231, 5%),
+    text: #cfe8ff,
+    text-muted: #8d9cb3,
+  ),
+  dark-pastels: (
+    primary: #8080cb,
+    bg: #1a1818,
+    bg-dark-1: #201d1d,
+    bg-dark-2: #252222,
+    bg-dark-3: darken(#252222, 5%),
+    text: #e8e8e8,
+    text-muted: #a194a7,
+  ),
+  tek: (
+    primary: #1cc5bc,
+    bg: #111d1d,
+    bg-dark-1: #142323,
+    bg-dark-2: #182828,
+    bg-dark-3: darken(#182828, 5%),
+    text: #e1e3f5,
+    text-muted: #90a0aa,
+  ),
+  dark-vscode: (
+    primary: #027acc,
+    bg: #191919,
+    bg-dark-1: #1e1e1e,
+    bg-dark-2: #262626,
+    bg-dark-3: darken(#262626, 5%),
+    text: #e6e7e9,
+    text-muted: #9e9e9f,
+  ),
+  dracula: (
+    primary: #9376c4,
+    bg: #343746,
+    bg-dark-1: #282a36,
+    bg-dark-2: lighten(#181a21, 5%),
+    bg-dark-3: #181a21,
+    text: #e6e7e9,
+    text-muted: #9e9e9f,
+  ),
+  black: (
+    primary: #336fd5,
+    bg: #000,
+    bg-dark-1: #0a0a0a,
+    bg-dark-2: #111,
+    bg-dark-3: #1a1a1a,
+    text: #ddd,
+    text-muted: #aaa,
+  ),
+);
+
+@mixin themify() {
+  @each $theme, $map in $themes {
+    .theme-#{$theme} & {
+      $theme-map: () !global;
+      @each $key, $submap in $map {
+        $value: map-get(map-get($themes, $theme), '#{$key}');
+        $theme-map: map-merge($theme-map, ($key: $value)) !global;
+      }
+      $theme: $theme !global;
+      @content;
+      $theme-map: null !global;
+    }
+  }
+}
+@mixin themify-root() {
+  @each $theme, $map in $themes {
+    .theme-#{$theme} ~ & {
+      $theme-map: () !global;
+      @each $key, $submap in $map {
+        $value: map-get(map-get($themes, $theme), '#{$key}');
+        $theme-map: map-merge($theme-map, ($key: $value)) !global;
+      }
+      $theme: $theme !global;
+      @content;
+      $theme-map: null !global;
+    }
+  }
+}
+
+@mixin theme-previews() {
+  @each $theme, $map in $themes {
+    .theme-preview-#{$theme} .theme-preview {
+      $theme-map: () !global;
+      @each $key, $submap in $map {
+        $value: map-get(map-get($themes, $theme), '#{$key}');
+        $theme-map: map-merge($theme-map, ($key: $value)) !global;
+      }
+      $theme: $theme !global;
+      @content;
+      $theme-map: null !global;
+    }
+  }
+}
+
+@function themed($key) {
+  @return map-get($theme-map, $key);
+}
+
+$load-img: url('https://cdn.discordapp.com/avatars/463091382144204832/a8f6229f56f6e3ba1c42668672481f6a.png?size=256');
