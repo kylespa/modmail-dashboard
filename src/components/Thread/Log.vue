@@ -12,6 +12,11 @@
           <div v-for="msg in log.messages" class="mt-2" :key="msg.id">
             <div class="msg-row flex">
               <div class="message flex-1" v-html="msg.body"></div>
+              <div v-if="msg.attachments && msg.attachments.length" class="attachments mt-2">
+                <a v-for="url in msg.attachments" :key="url" :href="url" target="_blank" rel="noopener noreferrer">
+                  <img class="attachment" :src="url" loading="lazy" alt="Attachment">
+                </a>
+              </div>
               <div v-if="settings.devMode && msg.dm_id" class="dm-id pl-3">
                 <code class="id">{{ msg.dm_id }}</code>
               </div>
@@ -104,6 +109,16 @@ export default {
     }
   }
 }
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.attachment {
+  max-width: 400px;
+  max-height: 300px;
+  border-radius: .25rem;
+}
 
 @media (max-width: $mobile-max) {
   .avatar-col {
@@ -124,6 +139,9 @@ export default {
     flex: 0 0 auto;
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+  .attachment {
+    max-width: 100%;
   }
   .dm-id {
     padding-left: 0;

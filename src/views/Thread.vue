@@ -141,6 +141,7 @@ export default {
             this.logs.slice(-1)[0].messages.push({
               id: message.id,
               dm_id: message.dm_message_id || null,
+              attachments: message.attachments || null,
               body: this.parseMessage(message.body)
             })
           } else {
@@ -153,6 +154,7 @@ export default {
               messages: [ {
                 id: message.id,
                 dm_id: message.dm_message_id || null,
+                attachments: message.attachments || null,
                 body: this.parseMessage(message.body)
               } ]
             })
