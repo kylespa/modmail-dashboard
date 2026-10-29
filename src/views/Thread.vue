@@ -34,6 +34,7 @@
             <i class="fa fa-hashtag"></i>
           </div>
         </div>
+        <account class="self-center mx-3"/>
       </div>
       <div v-if="initialMessages && logs.length" class="logs-area flex-1 scroller px-8 flex relative" ref="logs" @scroll="updateScroll">
         <div class="flex-1">
@@ -65,6 +66,7 @@ import User from '@/components/User.vue'
 import Loader from '@/components/Loader.vue'
 import NoLogs from '@/components/Thread/NoLogs.vue'
 import Log from '@/components/Thread/Log.vue'
+import Account from '@/components/Account.vue'
 import { es } from '@/stream'
 import { processMarkdown } from '@/markdown'
 
@@ -72,7 +74,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 export default {
   components: {
-    User, Loader, NoLogs, Log
+    User, Loader, NoLogs, Log, Account
   },
   props: {
     _thread: Object,
@@ -296,14 +298,13 @@ export default {
     cursor: pointer;
     text-transform: uppercase;
   }
-  &.long { width: calc(100vw - 4rem - (2rem + 10px)); }
+  &.long { width: calc(100vw - 5.5rem - (2rem + 10px)); }
   right: calc(2rem + 10px);
   transition: width .3s ease-in-out;
   width: calc(100vw - 18rem - (2rem + 10px));
 }
 
 @media (max-width: $mobile-max) {
-  // Two stacked lines: name, then the note
   .top-info {
     align-items: flex-start;
     flex-direction: column;
@@ -320,7 +321,6 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  // The global rule sizes emoji in titles for the desktop font size
   .top-bar .thread-name :deep(.emoji) {
     height: 1.25rem;
   }
@@ -337,7 +337,6 @@ export default {
       white-space: nowrap;
     }
   }
-  // Bigger touch targets
   .btnBack,
   .btn-col,
   .btn-col > .w-8 {
@@ -347,8 +346,6 @@ export default {
     padding-left: .75rem;
     padding-right: .75rem;
   }
-  // The sidebar no longer takes space beside the thread, so the banners span the full width.
-  // They're positioned against .content-area (see App.vue).
   .scroll-bottom, .new-messages {
     &, &.long {
       left: .5rem;

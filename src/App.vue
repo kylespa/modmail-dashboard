@@ -12,6 +12,7 @@
         <mobile-bar v-if="isMobile && connected" :filter="$route.name === 'threads' ? selectedUserName : null"
         @menu="sidebarOpen = true" @clearFilter="selectUser(null)"/>
         <div class="content-area flex-1 h-screen" :class="{ mobile: isMobile }">
+          <account v-if="$route.name !== 'thread'" class="account-floating"/>
           <router-view :_thread="thread" :settings="settings" :category="settingsCategory" :user="user"
           @changeSetting="changeSetting" @close="openThread(null)" @openThread="openThread"/>
         </div>
@@ -26,22 +27,22 @@ import superagent from 'superagent'
 import Sidebar from './components/Sidebar/Sidebar.vue'
 import MobileBar from './components/MobileBar.vue'
 import Loader from './components/Loader.vue'
+import Account from './components/Account.vue'
 
-// Keep in sync with $mobile-max in variables.scss
 const MOBILE_QUERY = '(max-width: 767px)'
 
 export default {
   components: {
-    Sidebar, MobileBar, Loader
+    Sidebar, MobileBar, Loader, Account
   },
   data () {
     return {
+      me: null,
       user: null,
       users: [],
       thread: null,
       connected: false,
       sidebarCollapsed: false,
-      // On mobile the sidebar is an off-canvas drawer controlled by sidebarOpen
       isMobile: window.matchMedia(MOBILE_QUERY).matches,
       sidebarOpen: false,
       theme: JSON.parse(localStorage.theme || '0') || 'dark',
@@ -55,7 +56,9 @@ export default {
   },
   provide () {
     return {
-      sidebarCollapsed: computed(() => this.sidebarCollapsed)
+      sidebarCollapsed: computed(() => this.sidebarCollapsed),
+      me: computed(() => this.me),
+      settingsCategory: computed(() => this.settingsCategory)
     }
   },
   watch: {
@@ -63,7 +66,6 @@ export default {
       if (this.thread)
         this.thread = null
     },
-    // Close the drawer whenever the user navigates somewhere
     '$route' () {
       this.sidebarOpen = false
     }
@@ -123,10 +125,16 @@ export default {
     this.mobileQuery.removeEventListener('change', this.updateMobile)
   },
   created () {
-    // Initial users
+    superagent.get('/me').end((err, res) => { 
+      if (err) {
+        console.log(err);
+      } else {
+        this.me = res.body;
+      }
+    });
     superagent.get('/users').end((err, res) => {
       if (err) {
-        console.log(err)
+        console.log(err);
       } else {
         this.users.push(...res.body)
         this.connected = true
@@ -219,19 +227,28 @@ code {
 .scroller-small:not(:hover)::-webkit-scrollbar-thumb { background: transparent; }
 .w-20 { width: 5rem; }
 .h-20 { height: 5rem; }
-// Mobile browsers' 100vh includes the area behind the address bar
 #app-root .h-screen {
   height: 100vh;
   height: 100dvh;
 }
+#app-root .account-floating {
+  position: fixed;
+  right: 1.5rem;
+  top: .75rem;
+  z-index: 20;
+}
 .content-area {
   min-width: 0;
   &.mobile {
-    // Room for the fixed mobile bar. Also makes this the containing block for
-    // absolutely positioned banners inside views.
     padding-top: 2.75rem;
     position: relative;
   }
+}
+.account-floating {
+  position: fixed;
+  right: 1.5rem;
+  top: .75rem;
+  z-index: 20;
 }
 .sidebar-backdrop {
   background: rgba(#000, .5);

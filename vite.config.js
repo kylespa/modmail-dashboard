@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 // Endpoints served by the modmail bot's web server
-const API_PATHS = ['/users', '/threads', '/logs', '/avatars', '/stream']
+const API_PATHS = ['/users', '/threads', '/logs', '/avatars', '/stream', '/me', '/logout']
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')

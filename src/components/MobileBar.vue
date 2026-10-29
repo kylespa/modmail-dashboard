@@ -8,19 +8,23 @@
       <span class="filter-name">{{ filter }}</span>
       <i class="fa fa-times ml-2"></i>
     </div>
+    <account compact class="mobile-account"/>
   </div>
 </template>
 
 <script>
-// The thread list has its own heading, so the bar shows the app name there
+import Account from './Account.vue'
+
 const titles = {
   thread: 'Thread',
   settings: 'Settings'
 }
 
 export default {
+  components: {
+    Account
+  },
   props: {
-    // Name of the user the thread list is currently filtered by
     filter: String
   },
   emits: ['menu', 'clearFilter'],
@@ -71,6 +75,13 @@ export default {
   max-width: 50%;
   min-width: 0;
   padding: $spacing * .25rem $spacing * .625rem;
+}
+.mobile-account {
+  margin-left: auto;
+  margin-right: $spacing * .5rem;
+}
+.filter-pill + .mobile-account {
+  margin-left: 0;
 }
 .filter-name {
   overflow: hidden;
