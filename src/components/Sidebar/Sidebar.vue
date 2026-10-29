@@ -16,6 +16,9 @@
       <div v-if="$route.name === 'settings'" class="area-title flex-1 flex justify-center items-center">
         <p class="text-3xl select-none">Settings</p>
       </div>
+      <div v-if="$route.name === ''" class="area-title flex-1 flex justify-center items-center">
+        <p class="text-3xl select-none">Recent Users</p>
+      </div>
       <user-search v-else :_search="search" @update="updateSearch"/>
     </div>
     <div v-if="isCollapsed"></div>
@@ -26,7 +29,6 @@
       v-slot="{ item }">
         <user-tab :selected="selected === item.id" :user="item" @selectUser="selectUser"/>
       </recycle-scroller>
-      <p class="recent-users select-none text-md font-semibold px-4 pt-2 pb-2">Recent Users</p>
     </template>
   </div>
 </template>
