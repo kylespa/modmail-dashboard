@@ -11,11 +11,13 @@
         </p>
           <div v-for="msg in log.messages" class="mt-2" :key="msg.id">
             <div class="msg-row flex">
-              <div class="message flex-1" v-html="msg.body"></div>
-              <div v-if="msg.attachments && msg.attachments.length" class="attachments mt-2">
-                <a v-for="url in msg.attachments" :key="url" :href="url" target="_blank" rel="noopener noreferrer">
-                  <img class="attachment" :src="url" loading="lazy" alt="Attachment">
-                </a>
+              <div class="message-collection flex-1">
+                <div class="message" v-html="msg.body"></div>
+                <div v-if="msg.attachments && msg.attachments.length" class="attachments mt-2">
+                  <a v-for="url in msg.attachments" :key="url" :href="url" target="_blank" rel="noopener noreferrer">
+                    <img class="attachment" :src="url" loading="lazy" alt="Attachment">
+                  </a>
+                </div>
               </div>
               <div v-if="settings.devMode && msg.dm_id" class="dm-id pl-3">
                 <code class="id">{{ msg.dm_id }}</code>
@@ -112,6 +114,7 @@ export default {
 .attachments {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-start;
   gap: .5rem;
 }
 .attachment {
@@ -133,6 +136,10 @@ export default {
   // squeezes it to zero width.
   .msg-row {
     flex-direction: column;
+  }
+  .message-collection {
+    flex: 0 0 auto;
+    min-width: 0;
   }
   // Let long words and URLs wrap instead of widening the page
   .message {
