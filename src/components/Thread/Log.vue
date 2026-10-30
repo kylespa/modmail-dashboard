@@ -6,7 +6,7 @@
       </div>
       <div class="flex-1">
         <p class="mb-3">
-          <user class="font-semibold mr-2" :user="log.user_name" :reply="log.type === 4"/>
+          <user class="font-semibold mr-2" :user="log.user_name" :role="log.role_name" :reply="log.type === 4"/>
           <span class="timestamp">{{formattedTime}}</span>
         </p>
           <div v-for="msg in log.messages" class="mt-2" :key="msg.id">
@@ -143,6 +143,7 @@ export default {
   }
   // Let long words and URLs wrap instead of widening the page
   .message {
+    font-family: 'ggsansvf';
     flex: 0 0 auto;
     min-width: 0;
     overflow-wrap: anywhere;
