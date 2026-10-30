@@ -308,8 +308,9 @@ code {
   border-radius: .25rem;
   cursor: pointer;
   display: flex;
+  height: 100%;
   min-height: 1.5rem;
-  height: 2.5rem;
+  max-height: 2rem;
   margin-bottom: 2px;
   padding: 0 .5rem;
   position: relative;
