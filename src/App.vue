@@ -162,7 +162,7 @@ code {
   @include themify {
     background: themed('bg-dark-2');
   }
-  border-radius: .25rem;
+  border-radius: $roundness;
   font-family: $mono;
   font-weight: 600;
   letter-spacing: -.05em;
@@ -175,7 +175,7 @@ code {
       border: 2px solid darken(themed('bg-dark-1'), 3%);
       color: themed('text-muted');
     }
-    border-radius: .25rem;
+    border-radius: $roundness;
     font-family: $mono;
     font-weight: 600;
     letter-spacing: -.05em;
@@ -203,7 +203,7 @@ code {
   @include themify {
     background: darken(themed('bg-dark-3'), 5%);
   }
-  border-radius: 5px;
+  border-radius: $roundness;
 }
 .scroller::-webkit-scrollbar-track {
   @include themify {
@@ -221,7 +221,7 @@ code {
     background: darken(themed('bg-dark-3'), 5%);
     border: 3px solid themed('bg-dark-1');
   }
-  border-radius: 5px;
+  border-radius: $roundness;
 }
 .scroller-small::-webkit-scrollbar-track { background: transparent; }
 .scroller-small::-webkit-scrollbar-corner { background: transparent; }
@@ -249,7 +249,7 @@ code {
     }
   }
   align-items: center;
-  border-radius: .25rem;
+  border-radius: $roundness;
   cursor: pointer;
   display: flex;
   flex-shrink: 0;
@@ -277,7 +277,7 @@ code {
     }
   }
   align-items: center;
-  border-radius: $spacing * .5rem;
+  border-radius: $spacing * $roundness;
   cursor: pointer;
   display: flex;
   flex-shrink: 0;
@@ -305,7 +305,7 @@ code {
     }
   }
   align-items: center;
-  border-radius: .25rem;
+  border-radius: $roundness;
   cursor: pointer;
   display: flex;
   height: 100%;
@@ -315,14 +315,12 @@ code {
   padding: 0 .5rem;
   position: relative;
   user-select: none;
-  // Accent pill against the sidebar's left edge (the list has .5rem of padding)
   &.selected::before {
     border-radius: 0 4px 4px 0;
     content: '';
     height: 1.25rem;
     left: -.5rem;
     position: absolute;
-    top: .625rem;
     width: 4px;
   }
   &.collapsed {
