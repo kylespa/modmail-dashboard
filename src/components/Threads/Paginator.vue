@@ -1,19 +1,28 @@
 <template>
   <div class="paginator select-none flex justify-center my-4">
-    <div class="btnPage" :class="{ hidden: page < 2 }" @click="prev">
+    <div class="btnPage" :class="{ hidden: page < 2 }" title="First page" @click="first">
+      <i class="fa fa-angle-double-left"></i>
+    </div>
+    <div class="btnPage" :class="{ hidden: page < 2 }" title="Previous page" @click="prev">
       <i class="fa fa-chevron-left text-sm"></i>
     </div>
     <div v-for="i in displayedPages" :key="i" class="btnPage global-trans-ignore" :class="{ current: page === i }"
     @click="select(i)">
       <span>{{i}}</span>
     </div>
-    <div class="btnPage" :class="{ hidden: page >= pageCount }" @click="next">
+    <div class="btnPage" :class="{ hidden: page >= pageCount }" title="Next page" @click="next">
       <i class="fa fa-chevron-right text-sm"></i>
+    </div>
+    <div class="btnPage" :class="{ hidden: page >= pageCount }" title="Last page" @click="last">
+      <i class="fa fa-angle-double-right"></i>
     </div>
   </div>
 </template>
 
 <script>
+
+const DISPLAYED_PAGES = 3;
+
 export default {
   props: {
     pageCount: { type: Number, required: true },
@@ -22,36 +31,19 @@ export default {
   emits: ['select'],
   computed: {
     displayedPages () {
-      let page = this.page
-      let count = this.pageCount
-      var r = [
-        page == 2 ? 1 : (
-          page == count - 1
-          ? page - 3
-          : page - 2
-        ),
-        page == 2 ? (count < 5 ? count : 5) : (
-          page == count - 1
-          ? count
-          : page + 2
-        )
-      ]
-      if (page == 1)
-        r = [1, Math.min(count, 5)]
-      if (page == count)
-        r = [count - 4, count]
-      if (count <= 5)
-        r = [1, count]
-      let p = []
-      for (var i = r[0]; i <= r[1]; i++) {
-          p.push(i)
-      }
-      return p
+      let count = Math.min(DISPLAYED_PAGES, this.pageCount)
+      let start = this.page - Math.floor(count / 2)
+      start = Math.max(1, Math.min(start, this.pageCount - count + 1))
+      return Array.from({ length: count }, (_, i) => start + i)
     }
   },
   methods: {
     select (page) {
       this.$emit('select', page)
+    },
+    first () {
+      if (this.page > 1)
+        this.select(1)
     },
     next () {
       if (this.page < this.pageCount)
@@ -60,6 +52,10 @@ export default {
     prev () {
       if (this.page > 1)
       this.select(this.page - 1)
+    },
+    last () {
+      if (this.page < this.pageCount)
+        this.select(this.pageCount)
     }
   }
 }
@@ -83,7 +79,7 @@ export default {
     opacity: 0;
   }
   align-items: center;
-  border-radius: .25rem;
+  border-radius: $spacing * .5rem;
   cursor: pointer;
   display: flex;
   height: 2.5rem;
@@ -92,11 +88,10 @@ export default {
   width: 2rem;
 }
 
-// Seven buttons at the desktop size are wider than a phone screen
 @media (max-width: $mobile-max) {
   .btnPage {
-    margin: 0 .15rem;
-    width: 2.125rem;
+    margin: 0 1px;
+    width: 1.875rem;
   }
 }
 </style>
