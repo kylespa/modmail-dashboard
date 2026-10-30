@@ -1,16 +1,20 @@
 <template>
   <tr class="select-none h-8" @click="open">
+    <td class="cell-user">
+      <span class="user-wrap inline-flex items-center">
+        <user :user="thread.user_name"/>
+        <copy-button class="ml-2" compact :text="thread.user_id" label="User ID"/>
+      </span>
+    </td>
     <td class="thread-id cell-time">
-      <code class="text-sm tracking-tight mr-2">{{ formattedTime }}</code>
+      <span class="tracking-tight">{{ absoluteTime }}</span>
+      <span v-if="relativeTime" class="ml-4">({{ relativeTime }})</span>
     </td>
     <td v-if="thread.status === 1" class="cell-status">
       <span class="status open">Open</span>
     </td>
     <td v-else-if="thread.status === 2" class="cell-status">
       <span class="status closed">Closed</span>
-    </td>
-    <td class="cell-user">
-      <span class="mx-auto"><User :user="thread.user_name"/></span>
     </td>
     <td class="cell-closed">
       <span v-if="thread.scheduled_close_name">
@@ -25,12 +29,13 @@
 import { formatDistanceToNow } from 'date-fns'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import User from '@/components/User.vue'
+import CopyButton from '@/components/Thread/CopyButton.vue'
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 export default {
   components: {
-    User
+    User, CopyButton
   },
   props: {
     thread: { type: Object, required: true },
@@ -40,7 +45,8 @@ export default {
   emits: ['open'],
   data () {
     return {
-      formattedTime: ''
+      absoluteTime: '',
+      relativeTime: null
     }
   },
   computed: {
@@ -59,17 +65,18 @@ export default {
     },
     updateRelativeTime () {
       const localDate = utcToZonedTime(new Date(this.thread.created_at + 'Z'), timeZone)
-      this.formattedTime = formatDistanceToNow(localDate) + ' ago'
-      setTimeout(this.updateRelativeTime, 10000)
+      this.relativeTime = formatDistanceToNow(localDate) + ' ago'
+      this.timeout = setTimeout(this.updateRelativeTime, 10000)
     }
   },
   created () {
-    if (this.settings.timeRelative) {
+    const localDate = utcToZonedTime(new Date(this.thread.created_at + 'Z'), timeZone)
+    this.absoluteTime = format(localDate, this.settings.timeFormat)
+    if (this.settings.timeRelative)
       this.updateRelativeTime()
-    } else {
-      const localDate = utcToZonedTime(new Date(this.thread.created_at + 'Z'), timeZone)
-      this.formattedTime = format(localDate, this.settings.timeFormat)
-    }
+  },
+  unmounted () {
+    clearTimeout(this.timeout)
   }
 }
 </script>
@@ -116,6 +123,16 @@ tr {
     transition: padding 0.6s ease;
     text-align: center;
   }
+  .cell-user {
+    padding-right: 5.5rem;
+    position: relative;
+  }
+  .cell-user .action-btn {
+    position: absolute;
+    right: .5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
   tr:last-child td {
     &:first-child { border-bottom-left-radius: $spacing * .5rem; }
     &:last-child { border-bottom-right-radius: $spacing * .5rem; }
@@ -159,6 +176,15 @@ tr {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-right: 2.5rem;
+  }
+  .user-wrap {
+    max-width: 100%;
+    & > .username {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
   .cell-status {
     grid-area: status;
