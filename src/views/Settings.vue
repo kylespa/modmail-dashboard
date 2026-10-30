@@ -1,6 +1,6 @@
 <template>
   <div class="settings-page scroller h-full pt-4">
-    <settings-themes v-if="$route.params.category === 'themes'" :current="settings.theme"
+    <settings-themes v-if="$route.params.category === 'appearance'" :current="settings.theme"
     @changeSetting="changeSetting"/>
     <settings-values v-for="d in visibleCategories" :key="d[1]"
     :settings="settings" :category="d" @changeSetting="changeSetting"/>
@@ -29,6 +29,11 @@ export default {
             min: 5,
             max: 100
           } ],
+          [ 'Recent Users', 'recentUserCount', 'Amount of users to show in the sidebar', {
+            type: Number,
+            min: 1,
+            max: 100
+          } ],
           [ 'Timestamp Format', 'timeFormat', '<a href="https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table" target="_blank">Unicode Date Symbols</a> to use with timestamps', {
             type: String
           } ],
@@ -48,7 +53,7 @@ export default {
   computed: {
     visibleCategories () {
       return this.categories.filter(d => d[1] === this.$route.params.category)
-    }
+    },
   },
   methods: {
     changeSetting (setting, value) {
