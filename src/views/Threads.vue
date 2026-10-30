@@ -1,43 +1,33 @@
 <template>
   <div class="page scroller pt-4 h-full">
     <p class="page-title text-center text-4xl">{{ includePrivate ? '' : 'Closed '}}Threads</p>
-    <div class="filter flex flex-wrap items-center justify-center select-none mt-4">
-      <div v-if="includePrivate" class="filter-group flex items-center mx-3 my-1">
-        <span class="filter-label font-semibold mr-3">Privacy</span>
-        <div class="filter-options flex">
-          <div v-for="option in privacyOptions" :key="option.value" class="filter-option"
-            :class="{ active: privacyFilter === option.value }" @click="selectPrivacy(option.value)">
-            {{ option.label }}
+    <div class="toolbar flex flex-wrap items-center justify-between select-none mt-4">
+      <div class="filter flex flex-wrap items-center">
+        <div v-if="includePrivate" class="filter-group flex items-center mr-6 my-1">
+          <span class="filter-label font-semibold mr-3">Privacy</span>
+          <div class="filter-options flex">
+            <div v-for="option in privacyOptions" :key="option.value" class="filter-option"
+              :class="{ active: privacyFilter === option.value }" @click="selectPrivacy(option.value)">
+              {{ option.label }}
+            </div>
+          </div>
+        </div>
+        <div class="filter-group flex items-center mr-6 my-1">
+          <span class="filter-label font-semibold mr-3">Status</span>
+          <div class="filter-options flex">
+            <div v-for="option in statusOptions" :key="option.value" class="filter-option"
+              :class="{ active: statusFilter === option.value }" @click="selectStatus(option.value)">
+              {{ option.label }}
+            </div>
           </div>
         </div>
       </div>
-      <div class="filter-group flex items-center mx-3 my-1">
-        <span class="filter-label font-semibold mr-3">Status</span>
-        <div class="filter-options flex">
-          <div v-for="option in statusOptions" :key="option.value" class="filter-option"
-            :class="{ active: statusFilter === option.value }" @click="selectStatus(option.value)">
-            {{ option.label }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Mobile only: the table header (and its sort buttons) is hidden on small screens -->
-    <div class="sort-bar items-center justify-center select-none mt-2">
-      <span class="filter-label font-semibold mr-3">Sort</span>
-      <div class="filter-options flex">
-        <div class="filter-option" :class="{ active: sort === 'created_at' }" @click="sortTime">
-          Created
-          <i v-if="sort === 'created_at'" class="fa ml-1" :class="reverse ? 'fa-sort-asc' : 'fa-sort-desc'"></i>
-        </div>
-        <div v-if="includePrivate" class="filter-option" :class="{ active: sort === 'status' }" @click="sortStatus">
-          Status
-          <i v-if="sort === 'status'" class="fa ml-1" :class="reverse ? 'fa-sort-asc' : 'fa-sort-desc'"></i>
-        </div>
-      </div>
+      <user-search :users="users" :selected="user" @select="$emit('selectUser', $event)"/>
     </div>
     <table cellspacing="0" class="my-4 w-full">
       <thead class="select-none">
         <tr>
+          <th>User</th>
           <th class="flex-inline items-center justify-center">
             <div class="sort" @click="sortTime">
               <span>Created At</span>
@@ -60,7 +50,6 @@
               </div>
             </div>
           </th>
-          <th>User</th>
           <th>Closed By</th>
         </tr>
       </thead>
@@ -87,18 +76,20 @@
 import superagent from 'superagent'
 import ThreadRow from '@/components/Threads/ThreadRow.vue'
 import Paginator from '@/components/Threads/Paginator.vue'
+import UserSearch from '@/components/Threads/UserSearch.vue'
 import Loader from '@/components/Loader.vue'
 import { es } from '@/stream'
 
 export default {
   components: {
-    ThreadRow, Paginator, Loader
+    UserSearch, ThreadRow, Paginator, Loader
   },
   props: {
+    users: { type: Array, required: true },
     user: String,
     settings: { type: Object, required: true }
   },
-  emits: ['openThread'],
+  emits: ['openThread', 'selectUser'],
   data () {
     return {
       threads: [],
@@ -327,7 +318,9 @@ th:last-child {
   .sort-bar {
     display: flex;
   }
-  // Thread rows become cards (see ThreadRow.vue), so the table must stop being one
+  .filter {
+    width: 100%;
+  }
   table, tbody {
     display: block;
   }
