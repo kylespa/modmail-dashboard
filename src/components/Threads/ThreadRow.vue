@@ -3,18 +3,21 @@
     <td class="cell-user">
       <span class="user-wrap inline-flex items-center">
         <user :user="thread.user_name"/>
-        <copy-button class="ml-2" compact :text="thread.user_id" label="User ID"/>
+        <span class="copy-desktop">
+          <copy-button class="ml-2" compact :text="thread.user_id" label="User ID"/>
+        </span>
       </span>
     </td>
     <td class="thread-id cell-time">
       <span class="tracking-tight">{{ absoluteTime }}</span>
       <span v-if="relativeTime" class="ml-4">({{ relativeTime }})</span>
     </td>
-    <td v-if="thread.status === 1" class="cell-status">
-      <span class="status open">Open</span>
-    </td>
-    <td v-else-if="thread.status === 2" class="cell-status">
-      <span class="status closed">Closed</span>
+    <td class="cell-status">
+      <span class="copy-mobile">
+        <copy-button compact :text="thread.user_id" label="User ID"/>
+      </span>
+      <span v-if="thread.status === 1" class="status open">Open</span>
+      <span v-else-if="thread.status === 2" class="status closed">Closed</span>
     </td>
     <td class="cell-closed">
       <span v-if="thread.scheduled_close_name">
@@ -99,6 +102,9 @@ tr {
 .closed-label {
   display: none;
 }
+.copy-mobile {
+  display: none;
+}
 
 // Desktop: a regular table row
 @media (min-width: $desktop-min) {
@@ -176,7 +182,6 @@ tr {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding-right: 2.5rem;
   }
   .user-wrap {
     max-width: 100%;
@@ -188,23 +193,20 @@ tr {
   }
   .cell-status {
     grid-area: status;
+    text-align: right;
   }
   .cell-time {
     grid-area: time;
   }
-  .cell-closed {
-    @include themify {
-      color: themed('text-muted');
-    }
-    font-size: .875rem;
-    grid-area: closed;
-    overflow: hidden;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+   .copy-desktop {
+    display: none;
   }
-  .closed-label {
+  .copy-mobile {
     display: inline;
+    margin-right: .5rem;
+  }
+  .cell-closed {
+    display: none;
   }
   .status {
     border-radius: 999px;
