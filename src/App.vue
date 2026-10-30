@@ -3,7 +3,7 @@
     <div class="app">
       <loader class="h-screen" v-if="!connected"/>
       <div class="flex" v-else>
-        <sidebar :users="users" :selected="user" :settingsCategory="settingsCategory" v-model:collapsed="sidebarCollapsed"
+        <sidebar :recentUserCount="recentUserCount" :users="users" :selected="user" :settingsCategory="settingsCategory" v-model:collapsed="sidebarCollapsed"
         :mobile="isMobile" v-model:open="sidebarOpen"
         @selectUser="selectUser" @selectCategory="selectCategory"/>
         <transition name="fade">
@@ -12,8 +12,7 @@
         <mobile-bar v-if="isMobile && connected" :filter="$route.name === 'threads' ? selectedUserName : null"
         @menu="sidebarOpen = true" @clearFilter="selectUser(null)"/>
         <div class="content-area flex-1 h-screen" :class="{ mobile: isMobile }">
-          <account v-if="$route.name !== 'thread'" class="account-floating"/>
-          <router-view :_thread="thread" :settings="settings" :category="settingsCategory" :user="user"
+          <router-view :_thread="thread" :settings="settings" :category="settingsCategory" :users="users" @selectUser="selectUser" :user="user"
           @changeSetting="changeSetting" @close="openThread(null)" @openThread="openThread"/>
         </div>
       </div>
@@ -27,13 +26,12 @@ import superagent from 'superagent'
 import Sidebar from './components/Sidebar/Sidebar.vue'
 import MobileBar from './components/MobileBar.vue'
 import Loader from './components/Loader.vue'
-import Account from './components/Account.vue'
 
 const MOBILE_QUERY = '(max-width: 767px)'
 
 export default {
   components: {
-    Sidebar, MobileBar, Loader, Account
+    Sidebar, MobileBar, Loader
   },
   data () {
     return {
@@ -47,11 +45,12 @@ export default {
       sidebarOpen: false,
       theme: JSON.parse(localStorage.theme || '0') || 'dark',
       pageSize: JSON.parse(localStorage.pageSize || '15'),
-      timeFormat: JSON.parse(localStorage.timeFormat || '"yyyy-MM-dd HH:mm:ss"'),
+      recentUserCount: JSON.parse(localStorage.recentUserCount || '15'),
+      timeFormat: JSON.parse(localStorage.timeFormat || '"MMMM dd, yyyy h:mm a"'),
       timeRelative: JSON.parse(localStorage.timeRelative || 'false'),
       botAvi: JSON.parse(localStorage.botAvi || 'false'),
       devMode: JSON.parse(localStorage.devMode || 'false'),
-      settingsCategory: localStorage.settingsCategory || 'themes'
+      settingsCategory: localStorage.settingsCategory || 'general'
     }
   },
   provide () {
@@ -84,6 +83,7 @@ export default {
       return {
         theme: this.theme,
         pageSize: this.pageSize,
+        recentUserCount: this.recentUserCount,
         timeFormat: this.timeFormat,
         timeRelative: this.timeRelative,
         botAvi: this.botAvi,
@@ -190,6 +190,7 @@ code {
     }
   }
   & .paragraph {
+    font-family: $thread-text;
     margin-top: .125rem;
   }
 }
@@ -231,12 +232,6 @@ code {
   height: 100vh;
   height: 100dvh;
 }
-#app-root .account-floating {
-  position: fixed;
-  right: 1.5rem;
-  top: .75rem;
-  z-index: 20;
-}
 .content-area {
   min-width: 0;
   &.mobile {
@@ -244,11 +239,95 @@ code {
     position: relative;
   }
 }
-.account-floating {
-  position: fixed;
-  right: 1.5rem;
-  top: .75rem;
-  z-index: 20;
+// Square icon buttons in the sidebar header and user panel
+.icon-btn {
+  @include themify {
+    color: themed('text-muted');
+    &:hover, &.active {
+      background: mix(if($theme == 'light', black, white), themed('bg-dark-1'), 10%);
+      color: themed('text');
+    }
+  }
+  align-items: center;
+  border-radius: .25rem;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 2rem;
+  justify-content: center;
+  text-decoration: none !important;
+  width: 2rem;
+}
+// Labelled buttons, e.g. the thread view's actions
+.action-btn {
+  @include themify {
+    background: themed('bg-dark-2');
+    color: themed('text-muted');
+    &:hover {
+      background: themed('bg-dark-3');
+      color: themed('text');
+    }
+    &.active {
+      background: themed('primary');
+      color: #fff;
+    }
+    &.copied {
+      background: rgba(themed('primary'), .15);
+      color: themed('primary');
+    }
+  }
+  align-items: center;
+  border-radius: $spacing * .5rem;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  font-size: .875rem;
+  font-weight: 600;
+  height: 2rem;
+  padding: 0 .75rem;
+  user-select: none;
+  white-space: nowrap;
+  & + & { margin-left: .5rem; }
+  & .label { margin-left: .5rem; }
+}
+// Sidebar rows (recent users, settings categories)
+.nav-item {
+  @include themify {
+    color: themed('text-muted');
+    &:hover {
+      background: mix(if($theme == 'light', black, white), themed('bg-dark-1'), 6%);
+      color: themed('text');
+    }
+    &.selected {
+      background: mix(if($theme == 'light', black, white), themed('bg-dark-1'), 12%);
+      color: themed('text');
+      &::before { background: themed('primary'); }
+    }
+  }
+  align-items: center;
+  border-radius: .25rem;
+  cursor: pointer;
+  display: flex;
+  min-height: 1.5rem;
+  height: 2.5rem;
+  margin-bottom: 2px;
+  padding: 0 .5rem;
+  position: relative;
+  user-select: none;
+  // Accent pill against the sidebar's left edge (the list has .5rem of padding)
+  &.selected::before {
+    border-radius: 0 4px 4px 0;
+    content: '';
+    height: 1.25rem;
+    left: -.5rem;
+    position: absolute;
+    top: .625rem;
+    width: 4px;
+  }
+  &.collapsed {
+    justify-content: center;
+    padding: 0;
+  }
 }
 .sidebar-backdrop {
   background: rgba(#000, .5);
