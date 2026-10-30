@@ -1,6 +1,6 @@
 <template>
   <div class="section">
-    <p class="section-title">Themes</p>
+    <p class="section-title">Appearance</p>
     <div class="theme-selector">
       <div v-for="theme in themes" class="inline-block justify-center px-8 mb-4" :key="theme[1]" :class="themeName(theme[1])">
         <div class="theme text-center inline-block" @click="selectTheme(theme[1])" :class="{ current: current === theme[1] }">

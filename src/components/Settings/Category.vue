@@ -1,14 +1,18 @@
 <template>
-  <div class="select-none" :class="{ selected }" @click="select">
-    <p>{{ category[0] }}</p>
+  <div class="nav-item" :class="{ selected, collapsed }" :title="collapsed ? category[0] : null" @click="select">
+    <i class="icon fa fa-fw" :class="category[2]"></i>
+    <p v-if="!collapsed" class="ml-3 font-medium">{{ category[0] }}</p>
   </div>
 </template>
 
 <script>
 export default {
   props: {
+    // [ name, id, icon ]
     category: { type: Array, required: true },
-    selected: Boolean
+    selected: Boolean,
+    // Collapsed sidebar: icon only
+    collapsed: Boolean
   },
   emits: ['select'],
   methods: {
@@ -20,25 +24,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/variables.scss';
-
-div {
-  @include themify {
-    &.selected {
-      background: mix(
-      if($theme == 'light', black, white),
-      themed('bg-dark-1'), 30%);
-      @if $theme == 'light' {
-        color: #eaeaea;
-      }
-    }
-    &:hover:not(.selected) {
-      background: mix(
-      if($theme == 'light', black, white),
-      themed('bg-dark-1'), 10%);
-    }
-  }
-  cursor: pointer;
-  padding: .5rem 1rem;
+.icon {
+  font-size: 1.125rem;
 }
 </style>
