@@ -1,8 +1,6 @@
 <template>
-  <div class="user-container flex items-center">
-    <div class="user flex-1 font-medium select-none px-3 py-2" :class="{ selected }" @click="select">
-      <user :user="user.name" :selected="selected"/>
-    </div>
+  <div class="nav-item" :class="{ selected }" @click="select">
+    <user class="name" :user="user.name"/>
   </div>
 </template>
 
@@ -15,7 +13,7 @@ export default {
   },
   props: {
     user: { type: Object, required: true },
-    selected: { type: Boolean, required: true }
+    selected: { type: Boolean, required: true },
   },
   emits: ['selectUser'],
   methods: {
@@ -29,31 +27,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/variables.scss';
-
-.user-container {
-  height: 40px;
-}
-.user {
-  cursor: pointer;
-  border-radius: $spacing * .25rem;
-  transition: padding 0.3s ease, border-radius 0.3s ease;
-}
-.user:hover:not(.selected) {
-  @include themify {
-    background: mix(
-      if($theme == 'light', black, white),
-      themed('bg-dark-1'), 10%);
-  }
-}
-.user.selected {
-  @include themify {
-    background: themed('primary');
-  }
-  color: #fff;
-}
-.username {
-  font-weight: 600;
+.name {
+  display: block;
+  font-weight: 500;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
-

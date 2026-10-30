@@ -1,94 +1,69 @@
 <template>
   <div class="sidebar global-trans-ignore flex flex-col h-screen w-64" :class="{ collapsed: isCollapsed, mobile, open }">
-    <div class="flex items-center h-16">
-      <div v-if="$route.name === 'settings'" class="btn-threads header-btn rounded flex items-center justify-center ml-2 select-none"
-      title="Back to users" @click="goBack">
-        <i class="fa fa-users"></i>
+    <div class="header flex items-center h-16 select-none">
+      <div v-if="$route.name === 'settings'" class="back icon-btn" title="Back to threads" @click="goBack">
+        <i class="fa fa-arrow-left"></i>
       </div>
-      <!-- mousedown.prevent stops the input's blur from closing the search before this click toggles it -->
-      <div v-else class="btn-search header-btn rounded flex items-center justify-center ml-2 select-none"
-      title="Search users" @mousedown.prevent @click="searchOpen ? closeSearch() : searchOpen = true">
-        <i class="fa" :class="searchOpen ? 'fa-times' : 'fa-search'"></i>
-      </div>
-      <div v-if="$route.name === 'settings'" class="area-title flex-1 flex justify-center items-center">
-        <p class="text-3xl select-none">Settings</p>
-      </div>
-      <user-search v-else-if="searchOpen" class="flex-1" :_search="search" @update="updateSearch" @close="closeSearch"/>
-      <div v-else class="area-title flex-1 flex justify-center items-center">
-        <p class="text-2xl select-none">Recent Users</p>
-      </div>
-      <div class="header-btns flex select-none">
-        <div class="btn-collapse header-btn rounded flex items-center justify-center"
-        :title="mobile ? 'Close' : isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'" @click="collapse">
-          <i v-if="mobile" class="text-xl fa fa-times"></i>
-          <!-- Lucide panel-left-close / panel-left-open -->
-          <svg v-else class="panel-icon" viewBox="0 0 24 24">
-            <rect width="18" height="18" x="3" y="3" rx="2"/>
-            <path d="M9 3v18"/>
-            <path :d="isCollapsed ? 'm14 9 3 3-3 3' : 'm16 15-3-3 3-3'"/>
-          </svg>
-        </div>
+      <p class="title flex-1 text-lg font-semibold">{{ $route.name === 'settings' ? 'Settings' : 'Modmail' }}</p>
+      <div class="icon-btn" :title="mobile ? 'Close' : isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'" @click="collapse">
+        <i v-if="mobile" class="text-xl fa fa-times"></i>
+        <!-- Lucide panel-left-close / panel-left-open -->
+        <svg v-else class="panel-icon" viewBox="0 0 24 24">
+          <rect width="18" height="18" x="3" y="3" rx="2"/>
+          <path d="M9 3v18"/>
+          <path :d="isCollapsed ? 'm14 9 3 3-3 3' : 'm16 15-3-3 3-3'"/>
+        </svg>
       </div>
     </div>
-    <div v-if="isCollapsed"></div>
-    <settings-categories v-else-if="$route.name === 'settings'" :category="settingsCategory" @select="selectCategory"/>
-    <no-users v-else-if="!searchedUsers.length"/>
-    <template v-else>
-      <recycle-scroller :items="searchedUsers" :item-size="40" key-field="id" class="scroller-small flex-1 px-2"
-      v-slot="{ item }">
-        <user-tab :selected="selected === item.id" :user="item" @selectUser="selectUser"/>
-      </recycle-scroller>
-    </template>
+    <div class="list scroller-small flex-1 flex flex-col px-2">
+      <template v-if="$route.name === 'settings'">
+        <p class="section-label">Categories</p>
+        <settings-categories :category="settingsCategory" :collapsed="isCollapsed" @select="selectCategory"/>
+      </template>
+      <template v-else-if="!isCollapsed">
+        <p class="section-label">Recent Users</p>
+        <no-users v-if="!recentUsers.length"/>
+        <user-tab v-for="user in recentUsers" :key="user.id" :selected="selected === user.id" :user="user"
+        @selectUser="selectUser"/>
+      </template>
+    </div>
+    <user-panel/>
   </div>
 </template>
 
 <script>
-import { RecycleScroller } from 'vue-virtual-scroller'
 import UserTab from './UserTab.vue'
-import UserSearch from './UserSearch.vue'
+import UserPanel from './UserPanel.vue'
 import NoUsers from './NoUsers.vue'
 import SettingsCategories from '@/components/Settings/SettingsCategories.vue'
 
 export default {
   components: {
-    UserTab, UserSearch, NoUsers, SettingsCategories, RecycleScroller
+    UserTab, UserPanel, NoUsers, SettingsCategories
   },
   props: {
+    recentUserCount: { type: Number, required: true },
     users: { type: Array, required: true },
     collapsed: Boolean,
+    // Mobile: the sidebar is an off-canvas drawer shown while `open`
     mobile: Boolean,
     open: Boolean,
     selected: String,
     settingsCategory: { type: String, required: true }
   },
   emits: ['selectUser', 'selectCategory', 'update:collapsed', 'update:open'],
-  data () {
-    return {
-      searchOpen: false,
-      search: ''
-    }
-  },
   computed: {
+    // The thin collapsed strip only exists on desktop
     isCollapsed () {
       return !this.mobile && this.collapsed
     },
-    searchedUsers () {
-      return this.users.filter(user => {
-        return user.name.toLowerCase().includes(this.search.toLowerCase())
-          || user.id.includes(this.search)
-      })
+    recentUsers () {
+      return this.users.slice(0, this.recentUserCount)
     }
   },
   methods: {
     selectUser (id) {
       this.$emit('selectUser', id)
-    },
-    updateSearch (search) {
-      this.search = search
-    },
-    closeSearch() {
-      this.search = '';
-      this.searchOpen = false;
     },
     collapse () {
       if (this.mobile)
@@ -113,28 +88,28 @@ export default {
   @include themify {
     background: themed('bg-dark-1');
   }
+  position: relative;
   transition: width .3s ease-in-out, background .3s ease-in-out;
 }
-.header-btns {
-  margin-left: auto;
-  padding: 0 .5rem;
+.list {
+  padding-bottom: 4rem;
 }
-.header-btn {
-  cursor: pointer;
-  height: 2.5rem;
-  width: 2.5rem;
-}
-.btn-collapse {
+
+.header {
   @include themify {
-    background: themed('bg-dark-3');
+    border-bottom: 1px solid themed('bg-dark-3');
   }
-  color: #fff;
+  flex-shrink: 0;
+  padding: 0 .75rem 0 1rem;
 }
-.btn-search, .btn-threads {
-  @include themify {
-    background: themed('primary');
-    color: themed('text');
-  }
+.back {
+  margin-left: -.5rem;
+  margin-right: .25rem;
+}
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .panel-icon {
   fill: none;
@@ -145,27 +120,33 @@ export default {
   stroke-width: 2;
   width: 1.25rem;
 }
-.area-title {
-  overflow: hidden;
+.section-label {
+  @include themify {
+    color: themed('text-muted');
+  }
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  padding: 1rem .5rem 1rem;
+  text-transform: uppercase;
+  user-select: none;
 }
-
-.collapsed .btn-search, .collapsed .btn-threads, .collapsed .area-title {
-  display: none;
-  & .searchbar {
-    width: 0px;
-    padding: 0px;
+.collapsed {
+  & .header {
+    justify-content: center;
+    padding: 0;
+  }
+  & .back, & .title, & .section-label {
+    display: none;
+  }
+  & .list {
+    padding-top: .5rem;
   }
   width: 3.5rem;
 }
-.text-3xl.select-none {
-  padding: 0 12px;
-  margin: 1px;
-}
-.area-title.flex-1.flex.justify-center.items-center {
-  padding: 12px 0;
-}
 
 @media (max-width: $mobile-max) {
+  // Off-canvas drawer. Hidden (and unfocusable) until `open`.
   .sidebar.mobile {
     box-shadow: none;
     left: 0;
@@ -183,7 +164,8 @@ export default {
       transition: transform .3s ease-in-out, box-shadow .3s ease-in-out, visibility 0s;
       visibility: visible;
     }
-    & .header-btn {
+    // Bigger touch targets
+    & .icon-btn {
       height: 2.75rem;
       width: 2.75rem;
     }
