@@ -1,20 +1,9 @@
 <template>
   <div class="h-full flex flex-col">
     <div v-if="thread" class="flex-1 flex flex-col">
-      <div class="top-bar h-16 flex">
-        <div class="btnBack w-8 select-none flex items-center justify-center" @click="close">
-          <i class="text-xl fa fa-times"></i>
-        </div>
-        <div class="btn-col w-8 select-none flex flex-col">
-          <div class="btnMsgToggle tippy-r select-none flex-1 flex items-center justify-center" :class="{ on: showMessages }"
-          title="Toggle Channel Messages" @click="toggleMsgs">
-            <i class="text-lg fa fa-comments">
-            </i>
-          </div>
-          <div title="Copy Thread ID" :data-clipboard-text="thread.id"
-          class="btnOther copyBtn tippy-r flex-1 flex items-center justify-center">
-            <i class="fa fa-clone"></i>
-          </div>
+      <div class="top-bar h-16 flex items-center px-3">
+        <div class="icon-btn" title="Back to threads" @click="close">
+          <i class="text-lg fa fa-arrow-left"></i>
         </div>
         <div class="top-info flex-1 flex items-center px-4">
           <p class="thread-name text-4xl mr-3">
@@ -24,17 +13,17 @@
             <p class="text-sm" ref="note">{{ note }}</p>
           </div>
         </div>
-        <div v-if="settings.devMode" class="btn-col flex flex-col w-8">
-          <div class="btnOther copyBtn tippy-l flex-1 w-8 select-none flex items-center justify-center" :title="'Copy User ID'"
-          :data-clipboard-text="thread.user_id">
-            <i class="text-lg fa fa-user"></i>
+        <div class="actions flex items-center">
+          <div class="action-btn" :class="{ active: showMessages }" title="Show channel messages" @click="toggleMsgs">
+            <i class="fa fa-fw fa-comments"></i>
+            <span class="label">Channel Messages</span>
           </div>
-          <div class="btnOther copyBtn tippy-l flex-1 w-8 select-none flex items-center justify-center" :title="'Copy Channel ID'"
-          :data-clipboard-text="thread.dm_channel_id">
-            <i class="fa fa-hashtag"></i>
-          </div>
+          <copy-button :text="thread.id" label="Thread ID"/>
+          <template v-if="settings.devMode">
+            <copy-button :text="thread.user_id" label="User ID"/>
+            <copy-button :text="thread.dm_channel_id" label="Channel ID"/>
+          </template>
         </div>
-        <account class="self-center mx-3"/>
       </div>
       <div v-if="initialMessages && logs.length" class="logs-area flex-1 scroller px-8 flex relative" ref="logs" @scroll="updateScroll">
         <div class="flex-1">
@@ -66,7 +55,7 @@ import User from '@/components/User.vue'
 import Loader from '@/components/Loader.vue'
 import NoLogs from '@/components/Thread/NoLogs.vue'
 import Log from '@/components/Thread/Log.vue'
-import Account from '@/components/Account.vue'
+import CopyButton from '@/components/Thread/CopyButton.vue'
 import { es } from '@/stream'
 import { processMarkdown } from '@/markdown'
 
@@ -74,7 +63,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 export default {
   components: {
-    User, Loader, NoLogs, Log, Account
+    User, Loader, NoLogs, Log, CopyButton
   },
   props: {
     _thread: Object,
@@ -151,6 +140,7 @@ export default {
               id: message.id,
               user_id: message.user_id,
               user_name: message.user_name,
+              role_name: message.role_name,
               created_at: message.created_at,
               type: message.message_type,
               messages: [ {
@@ -238,29 +228,9 @@ export default {
 .top-bar {
   @include themify {
     background: themed('bg-dark-1');
+    border-bottom: 1px solid themed('bg-dark-3');
   }
-}
-.btnMsgToggle {
-  @include themify {
-    &.on i {
-      color: themed('primary');
-    }
-    background: themed('bg-dark-3');
-    color: themed('text');
-  }
-  cursor: pointer;
-}
-.btnBack {
-  background: $red;
-  color: #fff;
-  cursor: pointer;
-}
-.btnOther {
-  @include themify {
-    background: themed('bg-dark-3');
-    color: themed('text');
-  }
-  cursor: pointer;
+  flex-shrink: 0;
 }
 .note {
   @include themify {
@@ -337,10 +307,16 @@ export default {
       white-space: nowrap;
     }
   }
-  .btnBack,
-  .btn-col,
-  .btn-col > .w-8 {
-    width: 2.75rem;
+  // Icons only; the labels don't fit
+  .actions :deep(.label) {
+    display: none;
+  }
+  .top-bar .icon-btn,
+  .action-btn {
+    height: 2.5rem;
+    justify-content: center;
+    padding: 0;
+    width: 2.5rem;
   }
   .logs-area {
     padding-left: .75rem;
