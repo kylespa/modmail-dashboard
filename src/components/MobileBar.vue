@@ -8,22 +8,16 @@
       <span class="filter-name">{{ filter }}</span>
       <i class="fa fa-times ml-2"></i>
     </div>
-    <account compact class="mobile-account"/>
   </div>
 </template>
 
 <script>
-import Account from './Account.vue'
-
 const titles = {
   thread: 'Thread',
   settings: 'Settings'
 }
 
 export default {
-  components: {
-    Account
-  },
   props: {
     filter: String
   },
@@ -75,13 +69,6 @@ export default {
   max-width: 50%;
   min-width: 0;
   padding: $spacing * .25rem $spacing * .625rem;
-}
-.mobile-account {
-  margin-left: auto;
-  margin-right: $spacing * .5rem;
-}
-.filter-pill + .mobile-account {
-  margin-left: 0;
 }
 .filter-name {
   overflow: hidden;

@@ -1,17 +1,29 @@
 <template>
-  <span class="username">
+  <span class="username" :class="{ 'has-role': roleName}">
     <span>{{ name }}</span>
     <span v-if="discrim" class="discrim" :class="{ s: selected }">#{{ discrim }}</span>
     <span v-if="replyRole" class="role text-sm ml-2 rounded">{{ replyRole }}</span>
+    <span v-if="roleName" class="role ml-2" :class="roleClass">{{ roleName }}</span>
+
   </span>
 </template>
 
 <script>
 import twemoji from '@twemoji/api'
 
+const ROLE_CLASSES = {
+  'white lotus - admin': 'role-admin',
+  'sentry - senior mod': 'role-staff',
+  'staff': 'role-staff',
+  'moderator': 'role-staff',
+  'mover star': 'role-mover',
+  'mover director': 'role-mover'
+};
+
 export default {
   props: {
     user: { type: String, required: true },
+    role: String,
     selected: Boolean,
     reply: Boolean
   },
@@ -37,6 +49,12 @@ export default {
         return this.user
       return match[1]
     },
+    roleName() {
+      return this.role || this.replyRole
+    },
+    roleClass() {
+      return this.roleName && ROLE_CLASSES[this.roleName.toLowerCase()]
+    },
     replyRole () {
       let match = this.user
         .match(/^(?:\(Anonymous\) )?\((.+)\) (.+)$/)
@@ -60,9 +78,31 @@ export default {
   &.s { color: #fff; }
   font-size: 80%;
 }
+// Background colour per role; the text is a darker shade of the same colour
+$role-colors: (
+  admin: #ecac67,
+  staff: #7570ff,
+  mover: #60eaff,
+);
+
+.has-role {
+  align-items: center;
+  display: inline-flex;
+}
 .role {
   @include themify { background: themed('primary'); }
+  border-radius: .25rem;
   color: #fff;
-  padding: .125rem .25rem;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: .125rem .375rem;
+  vertical-align: middle;
+  @each $name, $color in $role-colors {
+    &.role-#{$name} {
+      background: rgba($color, .15);
+      color: $color;
+    }
+  }
 }
+
 </style>
