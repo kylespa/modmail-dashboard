@@ -5,8 +5,9 @@ $red: #f04747;
 $mobile-max: 767px;
 $desktop-min: 768px;
 
-$sans-serif: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-$mono: 'Source Code Pro', 'Courier New', Courier, monospace;
+$sans-serif: 'ABCGintoDiscord', sans-serif;
+$thread-text: 'ggsansvf', sans-serif;
+$mono: 'ggsansmono', 'Courier New', Courier, monospace;
 
 $themes: (
   discord: (
@@ -118,6 +119,27 @@ $themes: (
     text-muted: #aaa,
   ),
 );
+
+@font-face {
+  font-family: 'ABCGintoDiscord';
+  src: url('@/assets/fonts/ABCGintoDiscord-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ggsansvf';
+  src: url('@/assets/fonts/ggsansvf-VF.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ggsansmono';
+  src: url('@/assets/fonts/ggsansmono-Normal.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
 
 @mixin themify() {
   @each $theme, $map in $themes {
