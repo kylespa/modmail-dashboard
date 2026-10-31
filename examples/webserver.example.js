@@ -22,6 +22,12 @@ const THREAD_ID = /^[0-9a-f-]+$/;
 const ID = /^\d+$/;
 
 const API_ENDPOINT = "https://discord.com/api/v9";
+
+const THREAD_CATEGORIES = {
+  public: "719883529470738523",
+  community: config.communityThreadCategoryId,
+  admin: config.adminCategoryId
+};
 var sse;
 
 function notfound(res) {
@@ -67,6 +73,8 @@ async function serveLogs(req, res) {
  * @param {express.Request} req
  */
 async function viewPrivateThreads(req) {
+  // Developers can simulate a normal user's view from the dashboard settings
+  if (req.get("X-View-As-User")) return false;
   const user = await oauth2.getAuthUser(req.cookies.token);
   return oauth2.isDashAdmin(user);
 }
@@ -98,7 +106,7 @@ server.use((req, res, next) => {
 });
 
 server.get("/threads", async (req, res) => {
-  let { limit: lim, page, user, sort_by, reverse, privacy, status } = req.query;
+  let { limit: lim, page, user, sort_by, reverse, privacy, status, category } = req.query;
   let limit = parseInt(lim) || 50;
 
   if (limit < 1) limit = 1;
@@ -123,6 +131,11 @@ server.get("/threads", async (req, res) => {
     q.where("status", constants.THREAD_STATUS.OPEN);
   } else if (status === "closed") {
     q.where("status", constants.THREAD_STATUS.CLOSED);
+  };
+
+  // Only admins may filter by the admin category
+  if (THREAD_CATEGORIES[category] && (category !== "admin" || viewAll)) {
+    q.where("category", THREAD_CATEGORIES[category]);
   };
 
   if (user) {

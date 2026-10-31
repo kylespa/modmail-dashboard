@@ -1,13 +1,13 @@
 <template>
   <div class="page scroller pt-4 h-full">
-    <p class="page-title text-center text-4xl">{{ includePrivate ? '' : 'Closed '}}Threads</p>
+    <p class="page-title text-center text-4xl">Threads</p>
     <div class="toolbar flex flex-wrap items-center justify-between select-none mt-4">
       <div class="filter flex flex-wrap items-center">
-        <div v-if="includePrivate" class="filter-group flex items-center mr-6 my-1">
-          <span class="filter-label font-semibold mr-3">Privacy</span>
+        <div v-if="displayCategoryFilter" class="filter-group flex items-center mr-6 my-1">
+          <span class="filter-label font-semibold mr-3">Category</span>
           <div class="filter-options flex">
-            <div v-for="option in privacyOptions" :key="option.value" class="filter-option"
-              :class="{ active: privacyFilter === option.value }" @click="selectPrivacy(option.value)">
+            <div v-for="option in categoryOptions" :key="option.value" class="filter-option"
+              :class="{ active: categoryFilter === option.value }" @click="selectCategory(option.value)">
               {{ option.label }}
             </div>
           </div>
@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import superagent from 'superagent'
+import { get } from '@/api'
 import ThreadRow from '@/components/Threads/ThreadRow.vue'
 import Paginator from '@/components/Threads/Paginator.vue'
 import UserSearch from '@/components/Threads/UserSearch.vue'
@@ -99,10 +99,14 @@ export default {
       sort: 'status',
       threadCount: 0,
       includePrivate: false,
+      communityOnly: false,
+      hideCommunity: false,
       loading: true,
       requestId: 0,
+      displayCategoryFilter: true,
       privacyFilter: 'all',
       statusFilter: 'all',
+      categoryFilter: 'all',
       privacyOptions: [
         { value: 'all', label: 'All' },
         { value: 'public', label: 'Public' },
@@ -116,8 +120,32 @@ export default {
     }
   },
   computed: {
+    categoryOptions () {
+      if (this.communityOnly) {
+        this.displayCategoryFilter = false;
+        return [{ value: 'all', label: 'Community' }]
+      };
+      if (this.moderatorOnly) {
+        this.displayCategoryFilter = false;
+        return [{ value: 'all', label: 'Moderator' }]
+      }
+      const options = [
+        { value: 'all', label: 'All' },
+        { value: 'community', label: 'Community' },
+        { value: 'moderator', label: 'Moderator' }
+      ]
+      if (this.hideCommunity) {
+        options.splice(options.findIndex(o => o.value === 'community'), 1);
+      };
+      if (this.hideModerator) {
+        options.splice(options.findIndex(o => o.value === 'moderator'), 1);
+      };
+      if (this.includePrivate)
+        options.push({ value: 'admin', label: 'Admin' })
+      return options
+    },
     emptyText () {
-      const active = [this.statusFilter, this.privacyFilter].filter(f => f !== 'all')
+      const active = [this.statusFilter, this.privacyFilter, this.categoryFilter].filter(f => f !== 'all')
       return `No ${active.length ? active.join(' ') + ' ' : ''}threads found`
     },
     filteredThreads () {
@@ -169,6 +197,13 @@ export default {
       this.page = 1
       this.refreshThreads()
     },
+    selectCategory (value) {
+      if (this.categoryFilter === value)
+        return
+      this.categoryFilter = value
+      this.page = 1
+      this.refreshThreads()
+    },
     refreshThreads (soft) {
       if (!soft) {
         this.threads = []
@@ -185,7 +220,9 @@ export default {
         q += `&privacy=${this.privacyFilter}`
       if (this.statusFilter !== 'all')
         q += `&status=${this.statusFilter}`
-      superagent.get(`/threads${q}`).end((err, res) => {
+      if (this.categoryFilter !== 'all')
+        q += `&category=${this.categoryFilter}`
+      get(`/threads${q}`).end((err, res) => {
         if (requestId !== this.requestId)
           return
         if (err) {
@@ -195,6 +232,8 @@ export default {
           this.threads = res.body.threads
           this.threadCount = res.body.total
           this.includePrivate = res.body.includePrivate
+          this.communityOnly = res.body.communityOnly
+          this.hideCommunity = res.body.hideCommunity
           this.loading = false
         }
       })
@@ -234,21 +273,21 @@ th {
   }
   & .sort { cursor: pointer; }
   color: #fff;
-  padding: $spacing * .5rem $spacing * .5rem;
+  padding: $spacing * .5rem $spacing * $roundness;
 }
 th:first-child {
-  border-top-left-radius: $spacing * .5rem;
+  border-top-left-radius: $spacing * $roundness;
 }
 th:last-child {
-  border-top-right-radius: $spacing * .5rem;
+  border-top-right-radius: $spacing * $roundness;
 }
 .loader, .empty {
   & td {
     @include themify {
       background: themed('bg-dark-2');
     }
-    border-bottom-left-radius: $spacing * .5rem;
-    border-bottom-right-radius: $spacing * .5rem;
+    border-bottom-left-radius: $spacing * $roundness;
+    border-bottom-right-radius: $spacing * $roundness;
     padding: 0;
   }
 }
@@ -268,7 +307,7 @@ th:last-child {
   @include themify {
     background: themed('bg-dark-2');
   }
-  border-radius: $spacing * .5rem;
+  border-radius: $spacing * $roundness;
   overflow: hidden;
 }
 .filter-option {
@@ -330,7 +369,7 @@ th:last-child {
   .loader, .empty {
     display: block;
     & td {
-      border-radius: $spacing * .5rem;
+      border-radius: $spacing * $roundness;
       display: block;
     }
   }

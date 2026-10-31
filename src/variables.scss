@@ -5,9 +5,11 @@ $red: #f04747;
 $mobile-max: 767px;
 $desktop-min: 768px;
 
-$sans-serif: 'ABCGintoDiscord', sans-serif;
-$thread-text: 'ggsansvf', sans-serif;
-$mono: 'ggsansmono', 'Courier New', Courier, monospace;
+$sans-serif: 'Ginto Discord', sans-serif;
+$thread-text: 'gg Sans', sans-serif;
+$mono: 'gg Sans Mono', monospace;
+
+$roundness: .65rem;
 
 $themes: (
   discord: (
@@ -121,21 +123,21 @@ $themes: (
 );
 
 @font-face {
-  font-family: 'ABCGintoDiscord';
+  font-family: 'Ginto Discord';
   src: url('@/assets/fonts/ABCGintoDiscord-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'ggsansvf';
+  font-family: 'gg Sans';
   src: url('@/assets/fonts/ggsansvf-VF.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'ggsansmono';
+  font-family: 'gg Sans Mono';
   src: url('@/assets/fonts/ggsansmono-Normal.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;

@@ -79,7 +79,7 @@ export default {
     opacity: 0;
   }
   align-items: center;
-  border-radius: $spacing * .5rem;
+  border-radius: $spacing * $roundness;
   cursor: pointer;
   display: flex;
   height: 2.5rem;

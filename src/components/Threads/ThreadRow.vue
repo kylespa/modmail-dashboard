@@ -140,8 +140,8 @@ tr {
     transform: translateY(-50%);
   }
   tr:last-child td {
-    &:first-child { border-bottom-left-radius: $spacing * .5rem; }
-    &:last-child { border-bottom-right-radius: $spacing * .5rem; }
+    &:first-child { border-bottom-left-radius: $spacing * $roundness; }
+    &:last-child { border-bottom-right-radius: $spacing * $roundness; }
   }
 }
 
@@ -160,7 +160,7 @@ tr {
       }
     }
     align-items: center;
-    border-radius: $spacing * .5rem;
+    border-radius: $spacing * $roundness;
     display: grid;
     gap: $spacing * .375rem $spacing * .75rem;
     grid-template-areas:
@@ -209,7 +209,7 @@ tr {
     display: none;
   }
   .status {
-    border-radius: 999px;
+    border-radius: $roundness;
     display: inline-block;
     font-size: .75rem;
     font-weight: 600;

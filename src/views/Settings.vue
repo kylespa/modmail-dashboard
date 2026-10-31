@@ -20,6 +20,7 @@ export default {
     category: { type: String, required: true }
   },
   emits: ['changeSetting'],
+  inject: ['isDeveloper'],
   data () {
     return {
       categories: [
@@ -46,13 +47,13 @@ export default {
           [ 'Developer Mode', 'devMode', 'Show message IDs', {
             type: Boolean
           } ]
-        ] ]
+        ] ],
       ]
     }
   },
   computed: {
     visibleCategories () {
-      return this.categories.filter(d => d[1] === this.$route.params.category)
+      return this.categories.filter(d => d[1] === this.$route.params.category && (!d[3] || this.isDeveloper))
     },
   },
   methods: {

@@ -13,11 +13,7 @@
             <div class="msg-row flex">
               <div class="message-collection flex-1">
                 <div class="message" v-html="msg.body"></div>
-                <div v-if="msg.attachments && msg.attachments.length" class="attachments mt-2">
-                  <a v-for="url in msg.attachments" :key="url" :href="url" target="_blank" rel="noopener noreferrer">
-                    <img class="attachment" :src="url" loading="lazy" alt="Attachment">
-                  </a>
-                </div>
+                <image-gallery v-if="msg.attachments && msg.attachments.length" class="mt-2" :images="msg.attachments"/>
               </div>
               <div v-if="settings.devMode && msg.dm_id" class="dm-id pl-3">
                 <code class="id">{{ msg.dm_id }}</code>
@@ -33,13 +29,14 @@
 import { formatDistanceToNow } from 'date-fns'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import User from '@/components/User.vue'
+import ImageGallery from '@/components/Thread/ImageGallery.vue'
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const botID = import.meta.env.VITE_BOT_ID
 
 export default {
   components: {
-    User
+    User, ImageGallery
   },
   props: {
     log: { type: Object, required: true },
@@ -111,17 +108,6 @@ export default {
     }
   }
 }
-.attachments {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: .5rem;
-}
-.attachment {
-  max-width: 400px;
-  max-height: 300px;
-  border-radius: .25rem;
-}
 
 @media (max-width: $mobile-max) {
   .avatar-col {
@@ -147,9 +133,6 @@ export default {
     flex: 0 0 auto;
     min-width: 0;
     overflow-wrap: anywhere;
-  }
-  .attachment {
-    max-width: 100%;
   }
   .dm-id {
     padding-left: 0;

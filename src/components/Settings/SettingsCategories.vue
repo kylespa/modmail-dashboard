@@ -1,6 +1,6 @@
 <template>
   <div>
-    <category v-for="d in categories" :key="d[1]" :category="d" :selected="$route.params.category === d[1]"
+    <category v-for="d in visibleCategories" :key="d[1]" :category="d" :selected="$route.params.category === d[1]"
     :collapsed="collapsed" @select="select"/>
   </div>
 </template>
@@ -17,12 +17,20 @@ export default {
     collapsed: Boolean
   },
   emits: ['select'],
+  inject: ['isDeveloper'],
   data () {
     return {
+      // [ name, id, icon, developer only ]
       categories: [
         ['General', 'general', 'fa-sliders'],
-        ['Appearance', 'appearance', 'fa-paint-brush']
+        ['Appearance', 'appearance', 'fa-paint-brush'],
+        ['Developer', 'developer', 'fa-code', true]
       ]
+    }
+  },
+  computed: {
+    visibleCategories () {
+      return this.categories.filter(d => !d[3] || this.isDeveloper)
     }
   },
   methods: {

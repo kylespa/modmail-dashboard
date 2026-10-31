@@ -62,7 +62,7 @@ export default {
     background: themed('bg-dark-3');
     color: themed('text-muted');
   }
-  border-radius: $spacing * .5rem;
+  border-radius: $spacing * $roundness;
   cursor: pointer;
   margin-left: auto;
   margin-right: $spacing * .5rem;

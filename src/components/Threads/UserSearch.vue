@@ -103,7 +103,7 @@ export default {
     border: 1px solid themed('bg-dark-3');
     color: themed('text-muted');
   }
-  border-radius: $spacing * .5rem;
+  border-radius: $spacing * $roundness;
   height: 2rem;
 }
 input {

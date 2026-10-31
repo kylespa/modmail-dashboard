@@ -23,6 +23,7 @@
 <script>
 import { computed } from 'vue'
 import superagent from 'superagent'
+import { get, isDeveloper } from './api'
 import Sidebar from './components/Sidebar/Sidebar.vue'
 import MobileBar from './components/MobileBar.vue'
 import Loader from './components/Loader.vue'
@@ -57,6 +58,7 @@ export default {
     return {
       sidebarCollapsed: computed(() => this.sidebarCollapsed),
       me: computed(() => this.me),
+      isDeveloper: computed(() => isDeveloper(this.me)),
       settingsCategory: computed(() => this.settingsCategory)
     }
   },
@@ -87,7 +89,7 @@ export default {
         timeFormat: this.timeFormat,
         timeRelative: this.timeRelative,
         botAvi: this.botAvi,
-        devMode: this.devMode
+        devMode: this.devMode,
       }
     }
   },
@@ -132,7 +134,7 @@ export default {
         this.me = res.body;
       }
     });
-    superagent.get('/users').end((err, res) => {
+    get('/users').end((err, res) => {
       if (err) {
         console.log(err);
       } else {

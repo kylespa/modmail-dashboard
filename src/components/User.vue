@@ -91,7 +91,7 @@ $role-colors: (
 }
 .role {
   @include themify { background: themed('primary'); }
-  border-radius: .25rem;
+  border-radius: $roundness;
   color: #fff;
   font-size: .75rem;
   font-weight: 600;

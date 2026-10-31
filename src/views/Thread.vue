@@ -49,7 +49,7 @@
 
 <script>
 import { format, utcToZonedTime } from 'date-fns-tz'
-import superagent from 'superagent'
+import { get } from '@/api'
 import twemoji from '@twemoji/api'
 import User from '@/components/User.vue'
 import Loader from '@/components/Loader.vue'
@@ -180,7 +180,7 @@ export default {
       this.showMessages = !this.showMessages
     },
     getLogs () {
-      superagent.get(`/logs/${this.thread.id}`).end((err, res) => {
+      get(`/logs/${this.thread.id}`).end((err, res) => {
         if (err) {
           console.log(err)
         } else {
@@ -206,7 +206,7 @@ export default {
     if (this.thread) {
       this.getLogs()
     } else {
-      superagent.get(`/threads/${this.$route.params.id}`).end((err, res) => {
+      get(`/threads/${this.$route.params.id}`).end((err, res) => {
         if (err) {
           if (res.status === 404)
             this.$router.push('/')
