@@ -1,5 +1,6 @@
 <template>
   <tr class="select-none h-8" @click="open">
+    <td class="cell-number">{{ thread.thread_number }}</td>
     <td class="cell-user">
       <span class="user-wrap inline-flex items-center">
         <user :user="thread.user_name"/>
@@ -205,6 +206,7 @@ tr {
     display: inline;
     margin-right: .5rem;
   }
+  .cell-number,
   .cell-closed {
     display: none;
   }
