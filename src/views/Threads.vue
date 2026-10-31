@@ -104,14 +104,8 @@ export default {
       loading: true,
       requestId: 0,
       displayCategoryFilter: true,
-      privacyFilter: 'all',
       statusFilter: 'all',
       categoryFilter: 'all',
-      privacyOptions: [
-        { value: 'all', label: 'All' },
-        { value: 'public', label: 'Public' },
-        { value: 'private', label: 'Private' }
-      ],
       statusOptions: [
         { value: 'all', label: 'All' },
         { value: 'open', label: 'Open' },
@@ -145,14 +139,13 @@ export default {
       return options
     },
     emptyText () {
-      const active = [this.statusFilter, this.privacyFilter, this.categoryFilter].filter(f => f !== 'all')
+      const active = [this.statusFilter, this.categoryFilter].filter(f => f !== 'all')
       return `No ${active.length ? active.join(' ') + ' ' : ''}threads found`
     },
     filteredThreads () {
-      if (!this.includePrivate || this.privacyFilter === 'all')
+      if (!this.includePrivate)
         return this.threads
-      const wantPrivate = this.privacyFilter === 'private'
-      return this.threads.filter(thread => !!thread.isPrivate === wantPrivate)
+      return this.threads.filter(thread => thread.isPrivate)
     }
   },
   watch: {
@@ -183,13 +176,6 @@ export default {
         this.reverse = !this.reverse
       this.refreshThreads()
     },
-    selectPrivacy (value) {
-      if (this.privacyFilter === value)
-        return
-      this.privacyFilter = value
-      this.page = 1
-      this.refreshThreads()
-    },
     selectStatus (value) {
       if (this.statusFilter === value)
         return
@@ -216,8 +202,6 @@ export default {
         q += `&user=${this.user}`
       if (this.reverse)
         q += '&reverse'
-      if (this.privacyFilter !== 'all')
-        q += `&privacy=${this.privacyFilter}`
       if (this.statusFilter !== 'all')
         q += `&status=${this.statusFilter}`
       if (this.categoryFilter !== 'all')
