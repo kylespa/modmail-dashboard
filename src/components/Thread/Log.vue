@@ -1,15 +1,15 @@
 <template>
-  <div class="log mb-3 pt-4" @mouseover="animated = true" @mouseout="animated = false">
+  <div class="log" @mouseover="animated = true" @mouseout="animated = false">
     <div class="flex">
       <div class="avatar-col w-16">
         <img class="avatar select-none" :src="getAvatarURL(log)">
       </div>
       <div class="flex-1">
-        <p class="mb-3">
+        <p class="header">
           <user class="font-semibold mr-2" :user="log.user_name" :role="log.role_name" :reply="log.type === 4"/>
           <span class="timestamp">{{formattedTime}}</span>
         </p>
-          <div v-for="msg in log.messages" class="mt-2" :key="msg.id">
+          <div v-for="msg in log.messages" class="msg" :key="msg.id">
             <div class="msg-row flex">
               <div class="message-collection flex-1">
                 <div class="message" v-html="msg.body"></div>
@@ -69,7 +69,7 @@ export default {
       this.updateRelativeTime()
     } else {
       const localDate = utcToZonedTime(new Date(this.log.created_at + 'Z'), timeZone)
-      this.formattedTime = format(localDate, this.settings.timeFormat)
+      this.formattedTime = format(localDate, 'h:mm a')
     }
   }
 }
@@ -82,23 +82,26 @@ export default {
   border-radius: 50%;
   height: 2.5rem;
   width: 2.5rem;
-  margin-top: .25rem;
+}
+.header {
+  align-items: center;
+  display: flex;
+  line-height: 1.375rem;
 }
 .timestamp {
   @include themify {
     color: mix(themed('bg'), themed('text'), 20%)
   }
+  font-size: .75rem;
+}
+.msg + .msg {
+  margin-top: .125rem;
+}
+.message :deep(.paragraph:first-child) {
+  margin-top: 0;
 }
 .log {
-  & + & {
-    @include themify {
-      border-top: 1px solid if(
-        $theme == 'light',
-        darken(themed('bg-dark-1'), 10%),
-        lighten(themed('bg-dark-1'), 10%)
-      );
-    }
-  }
+  margin-top: 1.0625rem;
   &:last-child {
     margin-bottom: 1.5rem;
   }

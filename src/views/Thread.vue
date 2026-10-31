@@ -27,7 +27,12 @@
       </div>
       <div v-if="initialMessages && logs.length" class="logs-area flex-1 scroller px-8 flex relative" ref="logs" @scroll="updateScroll">
         <div class="flex-1">
-          <log v-for="log in visibleLogs" :key="log.id" :log="log" :settings="settings"/>
+          <template v-for="(log, i) in visibleLogs" :key="log.id">
+            <div v-if="i === 0 || dayOf(log) !== dayOf(visibleLogs[i - 1])" class="date-divider">
+              <span>{{ dayLabel(log) }}</span>
+            </div>
+            <log :log="log" :settings="settings"/>
+          </template>
         </div>
       </div>
       <loader class="flex-1" v-else-if="!initialMessages"/>
@@ -170,7 +175,13 @@ export default {
         return `${message}`
       message = processMarkdown(message.replace(/\n/g, '\n\n'))
       message = twemoji.parse(message)
-      return message.replace(/(<br\/>)+$/, '')
+      return message.replace(/^(<br\/?>)+|(<br\/?>)+$/g, '')
+    },
+    dayOf (log) {
+      return format(utcToZonedTime(new Date(log.created_at + 'Z'), timeZone), 'yyyy-MM-dd')
+    },
+    dayLabel (log) {
+      return format(utcToZonedTime(new Date(log.created_at + 'Z'), timeZone), 'MMMM d, yyyy')
     },
     updateScroll (ev) {
       let el = ev.target
@@ -241,6 +252,21 @@ export default {
     );
     color: themed('text-muted');
   }
+}
+.date-divider {
+  @include themify { color: themed('text-muted'); }
+  align-items: center;
+  display: flex;
+  font-size: .75rem;
+  font-weight: 600;
+  margin: 1.5rem 0 .5rem;
+  &::before, &::after {
+    @include themify { background: themed('bg-dark-3'); }
+    content: '';
+    flex: 1;
+    height: 1px;
+  }
+  & span { padding: 0 .5rem; }
 }
 .scroll-bottom {
   @include themify {
