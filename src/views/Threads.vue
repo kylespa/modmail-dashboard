@@ -27,6 +27,17 @@
     <table cellspacing="0" class="my-4 w-full">
       <thead class="select-none">
         <tr>
+          <th class="flex-inline items-center justify-center">
+            <div class="sort" @click="sortNumber">
+              <span>#</span>
+              <div class="ml-2 inline-block">
+                <i v-if="sort !== 'thread_number'"
+                  class="compare fa fa-sort"></i>
+                <i v-else-if="reverse" class="compare fa fa-sort-asc"></i>
+                <i v-else class="compare fa fa-sort-desc"></i>
+              </div>
+            </div>
+          </th>
           <th>User</th>
           <th class="flex-inline items-center justify-center">
             <div class="sort" @click="sortTime">
@@ -57,12 +68,12 @@
         <thread-row v-for="thread in filteredThreads" :key="thread.id"
           :thread="thread" :settings="settings" @open="openThread"/>
         <tr v-if="loading" class="loader">
-          <td colspan="4" :style="{ height: `${settings.pageSize * 2}rem` }">
+          <td colspan="5" :style="{ height: `${settings.pageSize * 2}rem` }">
             <loader/>
           </td>
         </tr>
         <tr v-else-if="!filteredThreads.length" class="empty">
-          <td colspan="4">{{ emptyText }}</td>
+          <td colspan="5">{{ emptyText }}</td>
         </tr>
       </tbody>
     </table>
@@ -168,6 +179,13 @@ export default {
     },
     selectPage (page) {
       this.page = page
+      this.refreshThreads()
+    },
+    sortNumber () {
+      if (this.sort !== 'thread_number')
+        this.sort = 'thread_number'
+      else
+        this.reverse = !this.reverse
       this.refreshThreads()
     },
     sortTime () {
