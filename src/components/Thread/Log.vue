@@ -8,11 +8,20 @@
         <p class="header">
           <user class="font-semibold mr-2" :user="log.user_name" :role="log.role_name" :reply="log.type === 4"/>
           <span class="timestamp">{{formattedTime}}</span>
+          <span v-if="showSource && log.type === 2" class="source-tag ml-2">Channel</span>
         </p>
           <div v-for="msg in log.messages" class="msg" :key="msg.id">
             <div class="msg-row flex">
               <div class="message-collection flex-1">
                 <div class="message" v-html="msg.body"></div>
+                <div v-if="msg.edits && msg.edits.length" class="edited">
+                  <span class="edited-toggle select-none" @click="expanded[msg.id] = !expanded[msg.id]">
+                    (edited{{ msg.edits.length > 1 ? ` ×${msg.edits.length}` : '' }}) · {{ expanded[msg.id] ? 'hide' : 'show' }} original
+                  </span>
+                  <div v-if="expanded[msg.id]" class="edit-history">
+                    <div v-for="(old, k) in msg.edits" :key="k" class="old-version" v-html="old"></div>
+                  </div>
+                </div>
                 <image-gallery v-if="msg.attachments && msg.attachments.length" class="mt-2" :images="msg.attachments"/>
               </div>
               <div v-if="settings.devMode && msg.dm_id" class="dm-id pl-3">
@@ -41,9 +50,11 @@ export default {
   props: {
     log: { type: Object, required: true },
     settings: { type: Object, required: true },
+    showSource: Boolean
   },
   data () {
     return {
+      expanded: {},
       formattedTime: null,
       animated: false
     }
@@ -93,6 +104,35 @@ export default {
     color: mix(themed('bg'), themed('text'), 20%)
   }
   font-size: .75rem;
+}
+.edited {
+  @include themify { color: themed('text-muted'); }
+  font-size: .7rem;
+}
+.edited-toggle {
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+.old-version {
+  @include themify {
+    border-left: 2px solid themed('bg-dark-3');
+    color: themed('text-muted');
+  }
+  font-size: .875rem;
+  margin-top: .25rem;
+  padding-left: .5rem;
+  text-decoration: line-through;
+}
+.source-tag {
+  @include themify {
+    background: themed('bg-dark-3');
+    color: themed('text-muted');
+  }
+  border-radius: .25rem;
+  font-size: .625rem;
+  font-weight: 600;
+  padding: 0 .3rem;
+  text-transform: uppercase;
 }
 .msg + .msg {
   margin-top: .125rem;
