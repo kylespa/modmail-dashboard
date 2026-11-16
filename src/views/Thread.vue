@@ -14,9 +14,12 @@
           </div>
         </div>
         <div class="actions flex items-center">
-          <div class="action-btn" :class="{ active: showMessages }" title="Show channel messages" @click="toggleMsgs">
-            <i class="fa fa-fw fa-comments"></i>
-            <span class="label">Channel Messages</span>
+          <div class="view-toggle flex items-center mr-2">
+            <div v-for="mode in viewModes" :key="mode.value" class="action-btn"
+            :class="{ active: viewMode === mode.value }" :title="mode.title" @click="viewMode = mode.value">
+              <i class="fa fa-fw" :class="mode.icon"></i>
+              <span class="label">{{ mode.label }}</span>
+            </div>
           </div>
           <copy-button :text="thread.id" label="Thread ID"/>
           <template v-if="settings.devMode">
@@ -31,7 +34,7 @@
             <div v-if="i === 0 || dayOf(log) !== dayOf(visibleLogs[i - 1])" class="date-divider">
               <span>{{ dayLabel(log) }}</span>
             </div>
-            <log :log="log" :settings="settings"/>
+            <log :log="log" :settings="settings" :show-source="viewMode === 'both'"/>
           </template>
         </div>
       </div>
@@ -66,6 +69,15 @@ import { processMarkdown } from '@/markdown'
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
+const VIEW_MODES = [
+  { value: 'dm', label: 'DMs', icon: 'fa-envelope', title: 'Messages to/from the user' },
+  { value: 'channel', label: 'Channel', icon: 'fa-comments', title: 'Staff messages in the thread channel' },
+  { value: 'both', label: 'Both', icon: 'fa-list', title: 'Everything, interleaved' }
+]
+const USER_EDIT = /^\*\*The user edited their message:\*\*\n`B:` ([\s\S]*?)\n`A:` ([\s\S]*)$/
+// The bot wraps links in <> to suppress embeds; undo that before comparing
+const unwrapLinks = s => `${s}`.replace(/<(https?:\/\/[^\s>]+)>/ig, '$1')
+
 export default {
   components: {
     User, Loader, NoLogs, Log, CopyButton
@@ -85,7 +97,8 @@ export default {
       initialMessages: false,
       atBottom: true,
       unread: 0,
-      showMessages: false
+      viewMode: 'dm',
+      viewModes: VIEW_MODES
     }
   },
   watch: {
@@ -102,7 +115,9 @@ export default {
       return this.sidebarCollapsed
     },
     visibleLogs () {
-      return this.logs.filter(log => this.showMessages === (log.type === 2))
+      if (this.viewMode === 'both') return this.logs
+      const wantChannel = this.viewMode === 'channel'
+      return this.logs.filter(log => wantChannel === (log.type === 2))
     }
   },
   methods: {
@@ -113,6 +128,7 @@ export default {
     addMessage (message) {
       switch (message.message_type) {
         case 1:
+          if (this.applyUserEdit(message.body)) break
           if (message.body.startsWith('**EDITED')) break // Bandaid fix
 
           let ageMatch = message.body.match(/ccount\sage[:\s]?\*\*\s?([^*]+)/i)
@@ -127,19 +143,15 @@ export default {
             }, 0)
           }
           break
-        case 2: case 3: case 4:
+        case 2: case 3: case 4: {
+          const entry = this.makeEntry(message)
           if (this.logs.length && (
             this.logs.slice(-1)[0].user_id === message.user_id
             && (this.logs.slice(-1)[0].type === message.message_type)
             && format(utcToZonedTime(new Date(message.created_at + 'Z'), timeZone), 'yyMMddHH')
               === format(utcToZonedTime(new Date(this.logs.slice(-1)[0].created_at + 'Z'), timeZone), 'yyMMddHH')
           )) {
-            this.logs.slice(-1)[0].messages.push({
-              id: message.id,
-              dm_id: message.dm_message_id || null,
-              attachments: message.attachments || null,
-              body: this.parseMessage(message.body)
-            })
+            this.logs.slice(-1)[0].messages.push(entry)
           } else {
             this.logs.push({
               id: message.id,
@@ -148,20 +160,65 @@ export default {
               role_name: message.role_name,
               created_at: message.created_at,
               type: message.message_type,
-              messages: [ {
-                id: message.id,
-                dm_id: message.dm_message_id || null,
-                attachments: message.attachments || null,
-                body: this.parseMessage(message.body)
-              } ]
+              messages: [ entry ]
             })
           }
+          // Store the reactive proxy so later edits trigger re-renders
+          const last = this.logs[this.logs.length - 1]
+          this.msgById.set(message.id, last.messages[last.messages.length - 1])
+          break
+        }
+        case 8:
+          this.applyStaffEdit(message)
           break
       }
       if (this.atBottom && this.initialMessages)
         setTimeout(this.scrollToBottom, 0)
       else if (this.initialMessages)
         this.unread++
+    },
+    makeEntry (message) {
+      return {
+        id: message.id,
+        dm_id: message.dm_message_id || null,
+        attachments: message.attachments || null,
+        raw: message.body,
+        originalRaw: message.body,
+        body: this.parseMessage(message.body),
+        edits: [] // previous versions (parsed HTML), oldest first
+      }
+    },
+    applyStaffEdit (message) {
+      let meta = message.metadata
+      if (typeof meta === 'string') {
+        try { meta = JSON.parse(meta) } catch { return }
+      }
+      const original = meta && meta.originalThreadMessage
+      const target = original && this.msgById.get(original.id)
+      // The reply row already holds the new text; just record the old one
+      if (target)
+        target.edits.push(this.parseMessage(original.body))
+    },
+    applyUserEdit (body) {
+      const match = typeof body === 'string' && body.match(USER_EDIT)
+      if (!match) return false
+      const before = unwrapLinks(match[1])
+      const after = unwrapLinks(match[2])
+      // Newest first. "before" is the current text or the original, depending on the bot's cache
+      for (let i = this.logs.length - 1; i >= 0; i--) {
+        if (this.logs[i].type !== 3) continue
+        const msgs = this.logs[i].messages
+        for (let j = msgs.length - 1; j >= 0; j--) {
+          const msg = msgs[j]
+          if (unwrapLinks(msg.raw) === before || unwrapLinks(msg.originalRaw) === before) {
+            msg.edits.push(msg.body)
+            msg.raw = after
+            msg.body = this.parseMessage(after)
+            return true
+          }
+        }
+      }
+      return true // Unmatched: still hide it, as before
     },
     scrollToBottom () {
       if (this.$refs.logs)
@@ -187,9 +244,6 @@ export default {
       let el = ev.target
       this.atBottom = el.scrollTop >= (el.scrollHeight - el.offsetHeight - 75)
     },
-    toggleMsgs () {
-      this.showMessages = !this.showMessages
-    },
     getLogs () {
       get(`/logs/${this.thread.id}`).end((err, res) => {
         if (err) {
@@ -213,6 +267,7 @@ export default {
     es.removeEventListener('newMessage', this.newMessage)
   },
   created () {
+    this.msgById = new Map()
     es.addEventListener('newMessage', this.newMessage)
     if (this.thread) {
       this.getLogs()
@@ -252,6 +307,9 @@ export default {
     );
     color: themed('text-muted');
   }
+}
+.view-toggle .action-btn + .action-btn {
+  margin-left: .25rem;
 }
 .date-divider {
   @include themify { color: themed('text-muted'); }
