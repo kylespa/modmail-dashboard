@@ -70,8 +70,8 @@ import { processMarkdown } from '@/markdown'
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const VIEW_MODES = [
-  { value: 'dm', label: 'DMs', icon: 'fa-envelope', title: 'Messages to/from the user' },
-  { value: 'channel', label: 'Channel', icon: 'fa-comments', title: 'Staff messages in the thread channel' }
+  { value: 'dm', label: 'Messages to User', icon: 'fa-envelope', title: 'Messages to/from the user' },
+  { value: 'channel', label: 'Messages in Channel', icon: 'fa-comments', title: 'Staff messages in the thread channel' }
 ]
 const USER_EDIT = /^\*\*The user edited their message:\*\*\n`B:` ([\s\S]*?)\n`A:` ([\s\S]*)$/
 // The bot wraps links in <> to suppress embeds; undo that before comparing
