@@ -16,7 +16,7 @@
         <div class="actions flex items-center">
           <div class="view-toggle flex items-center mr-2">
             <div v-for="mode in viewModes" :key="mode.value" class="action-btn"
-            :class="{ active: viewMode === mode.value }" :title="mode.title" @click="viewMode = mode.value">
+            :class="{ active: shown[mode.value] }" :title="mode.title" @click="toggleView(mode.value)">
               <i class="fa fa-fw" :class="mode.icon"></i>
               <span class="label">{{ mode.label }}</span>
             </div>
@@ -34,7 +34,7 @@
             <div v-if="i === 0 || dayOf(log) !== dayOf(visibleLogs[i - 1])" class="date-divider">
               <span>{{ dayLabel(log) }}</span>
             </div>
-            <log :log="log" :settings="settings" :show-source="viewMode === 'both'"/>
+            <log :log="log" :settings="settings" :show-source="showBoth"/>
           </template>
         </div>
       </div>
@@ -71,8 +71,7 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const VIEW_MODES = [
   { value: 'dm', label: 'DMs', icon: 'fa-envelope', title: 'Messages to/from the user' },
-  { value: 'channel', label: 'Channel', icon: 'fa-comments', title: 'Staff messages in the thread channel' },
-  { value: 'both', label: 'Both', icon: 'fa-list', title: 'Everything, interleaved' }
+  { value: 'channel', label: 'Channel', icon: 'fa-comments', title: 'Staff messages in the thread channel' }
 ]
 const USER_EDIT = /^\*\*The user edited their message:\*\*\n`B:` ([\s\S]*?)\n`A:` ([\s\S]*)$/
 // The bot wraps links in <> to suppress embeds; undo that before comparing
@@ -97,7 +96,7 @@ export default {
       initialMessages: false,
       atBottom: true,
       unread: 0,
-      viewMode: 'dm',
+      shown: { dm: true, channel: false },
       viewModes: VIEW_MODES
     }
   },
@@ -114,10 +113,12 @@ export default {
     collapsed () {
       return this.sidebarCollapsed
     },
+    showBoth () {
+      return this.shown.dm && this.shown.channel
+    },
     visibleLogs () {
-      if (this.viewMode === 'both') return this.logs
-      const wantChannel = this.viewMode === 'channel'
-      return this.logs.filter(log => wantChannel === (log.type === 2))
+      if (this.showBoth) return this.logs
+      return this.logs.filter(log => this.shown.channel === (log.type === 2))
     }
   },
   methods: {
@@ -176,6 +177,11 @@ export default {
         setTimeout(this.scrollToBottom, 0)
       else if (this.initialMessages)
         this.unread++
+    },
+    toggleView (mode) {
+      const other = mode === 'dm' ? 'channel' : 'dm'
+      if (this.shown[mode] && !this.shown[other]) return // Keep at least one on
+      this.shown[mode] = !this.shown[mode]
     },
     makeEntry (message) {
       return {
