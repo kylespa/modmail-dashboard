@@ -1,5 +1,5 @@
 <template>
-  <div class="mobile-bar global-trans-ignore flex items-center select-none">
+  <div class="mobile-bar global-trans-ignore items-center select-none">
     <div class="btn-menu flex items-center justify-center" role="button" aria-label="Open menu" @click="$emit('menu')">
       <i class="text-xl fa fa-bars"></i>
     </div>
@@ -38,6 +38,8 @@ export default {
     background: themed('bg-dark-1');
     color: themed('text');
   }
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   height: 2.75rem;
   left: 0;
   position: fixed;
@@ -52,9 +54,11 @@ export default {
   color: #fff;
   cursor: pointer;
   height: 100%;
+  justify-self: start;
   width: 2.75rem;
 }
 .title {
+  grid-column: 2;
   white-space: nowrap;
 }
 .filter-pill {
@@ -64,9 +68,10 @@ export default {
   }
   border-radius: $spacing * $roundness;
   cursor: pointer;
-  margin-left: auto;
+  grid-column: 3;
+  justify-self: end;
   margin-right: $spacing * .5rem;
-  max-width: 50%;
+  max-width: 100%;
   min-width: 0;
   padding: $spacing * .25rem $spacing * .625rem;
 }
