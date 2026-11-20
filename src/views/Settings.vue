@@ -10,10 +10,6 @@
 <script>
 import SettingsThemes from '@/components/Settings/SettingsThemes.vue'
 import SettingsValues from '@/components/Settings/SettingsValues.vue'
-import { AUTO_DATE, AUTO_TIME } from '@/timeFormats.js'
-
-const DATE_LABELS = { mdy: 'Month Day, Year', dmy: 'Day Month Year' }
-const TIME_LABELS = { 12: '12 hour (3:45 PM)', 24: '24 hour (15:45)' }
 
 export default {
   components: {
