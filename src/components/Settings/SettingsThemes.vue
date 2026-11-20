@@ -2,7 +2,7 @@
   <div class="section">
     <p class="section-title">Appearance</p>
     <div class="theme-selector">
-      <div v-for="theme in themes" class="inline-block justify-center px-8 mb-4" :key="theme[1]" :class="themeName(theme[1])">
+      <div v-for="theme in themes" class="inline-block justify-center pr-5 mb-4" :key="theme[1]" :class="themeName(theme[1])">
         <div class="theme text-center inline-block" @click="selectTheme(theme[1])" :class="{ current: current === theme[1] }">
           <div class="theme-preview w-20 rounded-lg h-20 mb-4 mx-auto flex select-none">
             <i v-if="theme[1] === 'system'" class="fa fa-refresh text-3xl m-auto"></i>
@@ -56,6 +56,7 @@ export default {
   @include themify {
     box-shadow: 0 0 0 4px themed('primary');
   }
+  border: none;
 }
 
 @media (max-width: $mobile-max) {
@@ -70,7 +71,7 @@ export default {
 
 .theme-preview-system .theme-preview {
   @include themify {
-    background: themed('bg-dark-2');
+    background: white;
     color: themed('text');
   }
 }
@@ -83,6 +84,6 @@ export default {
     background: themed('text');
   }
   background: themed('bg');
-  border: 2px solid gray;
+  border: 2px solid #96979e;
 }
 </style>
