@@ -29,6 +29,7 @@ import MobileBar from './components/MobileBar.vue'
 import Loader from './components/Loader.vue'
 
 const MOBILE_QUERY = '(max-width: 767px)'
+const DARK_QUERY = '(prefers-color-scheme: dark)'
 
 export default {
   components: {
@@ -44,7 +45,8 @@ export default {
       sidebarCollapsed: false,
       isMobile: window.matchMedia(MOBILE_QUERY).matches,
       sidebarOpen: false,
-      theme: JSON.parse(localStorage.theme || '0') || 'dark',
+      theme: JSON.parse(localStorage.theme || '0') || 'system',
+      systemDark: window.matchMedia(DARK_QUERY).matches,
       pageSize: JSON.parse(localStorage.pageSize || '15'),
       recentUserCount: JSON.parse(localStorage.recentUserCount || '15'),
       timeFormat: JSON.parse(localStorage.timeFormat || '"MMMM dd, yyyy h:mm a"'),
@@ -77,8 +79,11 @@ export default {
       return user ? user.name : null
     },
     themeName () {
+      const theme = this.theme === 'system'
+        ? (this.systemDark ? 'black' : 'light')
+        : this.theme
       return {
-        [`theme-${this.theme}`]: true
+        [`theme-${theme}`]: true
       }
     },
     settings () {
@@ -103,6 +108,9 @@ export default {
       if (!ev.matches)
         this.sidebarOpen = false
     },
+    updateSystemTheme (ev) {
+      this.systemDark = ev.matches
+    },
     changeSetting (setting, value) {
       localStorage[setting] = JSON.stringify(value)
       this[setting] = value
@@ -122,9 +130,12 @@ export default {
   mounted () {
     this.mobileQuery = window.matchMedia(MOBILE_QUERY)
     this.mobileQuery.addEventListener('change', this.updateMobile)
+    this.darkQuery = window.matchMedia(DARK_QUERY)
+    this.darkQuery.addEventListener('change', this.updateSystemTheme)
   },
   beforeUnmount () {
     this.mobileQuery.removeEventListener('change', this.updateMobile)
+    this.darkQuery.removeEventListener('change', this.updateSystemTheme)
   },
   created () {
     superagent.get('/me').end((err, res) => { 
