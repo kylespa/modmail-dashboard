@@ -5,7 +5,7 @@
       <div v-for="theme in themes" class="inline-block justify-center pr-5 mb-4" :key="theme[1]" :class="themeName(theme[1])">
         <div class="theme text-center inline-block" @click="selectTheme(theme[1])" :class="{ current: current === theme[1] }">
           <div class="theme-preview w-20 rounded-lg h-20 mb-4 mx-auto flex select-none">
-            <i v-if="theme[1] === 'system'" class="fa fa-refresh text-3xl m-auto"></i>
+            <i v-if="theme[1] === 'system'" class="fa fa-refresh text-3xl m-auto" style="color: #595a62"></i>
             <div v-else class="bg rounded-l-lg"></div>
           </div>
           <span class="text-lg">{{theme[0]}}</span>
@@ -54,7 +54,8 @@ export default {
 
 .current .theme-preview {
   @include themify {
-    box-shadow: 0 0 0 4px themed('primary');
+    box-shadow: 0 0 0 2px themed('primary');
+    border: 2px solid themed('primary');
   }
   border: none;
 }
