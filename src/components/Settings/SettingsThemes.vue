@@ -74,6 +74,7 @@ export default {
   @include themify {
     background: white;
     color: themed('text');
+    border: 2px solid #96979e;
   }
 }
 
