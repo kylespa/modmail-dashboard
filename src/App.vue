@@ -33,7 +33,7 @@ import { DATE_FORMATS, TIME_FORMATS } from './timeFormats.js'
 const loadChoice = (key, choices, fallback) => {
   try {
     const value = JSON.parse(localStorage[key] || 'null')
-    return value in choices ? value : fallback
+    return choices.includes(value) ? value : fallback
   } catch {
     return fallback
   }
@@ -60,8 +60,8 @@ export default {
       systemDark: window.matchMedia(DARK_QUERY).matches,
       pageSize: JSON.parse(localStorage.pageSize || '15'),
       recentUserCount: JSON.parse(localStorage.recentUserCount || '15'),
-      dateFormat: loadChoice('dateFormat', DATE_FORMATS, 'mdy'),
-      timeFormat: loadChoice('timeFormat', TIME_FORMATS, '12'),
+      dateFormat: loadChoice('dateFormat', ['auto', ...Object.keys(DATE_FORMATS)], 'auto'),
+      timeFormat: loadChoice('timeFormat', ['auto', ...Object.keys(TIME_FORMATS)], 'auto'),
       timeRelative: JSON.parse(localStorage.timeRelative || 'false'),
       botAvi: JSON.parse(localStorage.botAvi || 'false'),
       devMode: JSON.parse(localStorage.devMode || 'false'),
