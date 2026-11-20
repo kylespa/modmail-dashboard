@@ -10,6 +10,10 @@
 <script>
 import SettingsThemes from '@/components/Settings/SettingsThemes.vue'
 import SettingsValues from '@/components/Settings/SettingsValues.vue'
+import { AUTO_DATE, AUTO_TIME } from '@/timeFormats.js'
+
+const DATE_LABELS = { mdy: 'Month Day, Year', dmy: 'Day Month Year' }
+const TIME_LABELS = { 12: '12 hour (3:45 PM)', 24: '24 hour (15:45)' }
 
 export default {
   components: {
@@ -35,13 +39,13 @@ export default {
             min: 1,
             max: 100
           } ],
-          [ 'Date Format', 'dateFormat', 'Order of the day and month in dates', {
+          [ 'Date Format', 'dateFormat', 'Order of the day and month in dates. Automatic uses your browser language', {
             type: 'radio',
-            options: [ [ 'mdy', 'Month Day, Year' ], [ 'dmy', 'Day Month Year' ] ]
+            options: [ [ 'auto', `Automatic (${DATE_LABELS[AUTO_DATE]})` ], [ 'mdy', DATE_LABELS.mdy ], [ 'dmy', DATE_LABELS.dmy ] ]
           } ],
-          [ 'Time Format', 'timeFormat', 'Show times on a 12 or 24 hour clock', {
+          [ 'Time Format', 'timeFormat', 'Show times on a 12 or 24 hour clock. Automatic uses your browser language', {
             type: 'radio',
-            options: [ [ '12', '12 hour (3:45 PM)' ], [ '24', '24 hour (15:45)' ] ]
+            options: [ [ 'auto', `Automatic (${TIME_LABELS[AUTO_TIME]})` ], [ '12', TIME_LABELS[12] ], [ '24', TIME_LABELS[24] ] ]
           } ],
           [ 'Relative Time', 'timeRelative', 'Make timestamps relative to now', {
             type: Boolean
