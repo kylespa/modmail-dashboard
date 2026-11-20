@@ -49,9 +49,8 @@ export default {
 }
 .btn-menu {
   @include themify {
-    background: themed('primary');
+      color: themed('text');
   }
-  color: #fff;
   cursor: pointer;
   height: 100%;
   justify-self: start;
