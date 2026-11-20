@@ -12,7 +12,7 @@
           :min="setting[3].min" :max="setting[3].max" @change="changeSetting"/>
           <boolean-input v-if="setting[3].type === Boolean" :initial="settings[setting[1]]" :setting="setting[1]"
           @change="changeSetting"/>
-          <select-input v-if="setting[3].type === 'select'" :initial="settings[setting[1]]" :setting="setting[1]"
+          <radio-input v-if="setting[3].type === 'radio'" :initial="settings[setting[1]]" :setting="setting[1]"
           :options="setting[3].options" @change="changeSetting"/>
         </div>
       </div>
@@ -24,11 +24,11 @@
 import NumberInput from '@/components/Inputs/Number.vue'
 import StringInput from '@/components/Inputs/String.vue'
 import BooleanInput from '@/components/Inputs/Boolean.vue'
-import SelectInput from '@/components/Inputs/Select.vue'
+import RadioInput from '@/components/Inputs/Radio.vue'
 
 export default {
   components: {
-    NumberInput, StringInput, BooleanInput, SelectInput
+    NumberInput, StringInput, BooleanInput, RadioInput
   },
   props: {
     category: { type: Array, required: true },

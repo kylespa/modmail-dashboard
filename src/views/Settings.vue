@@ -36,11 +36,11 @@ export default {
             max: 100
           } ],
           [ 'Date Format', 'dateFormat', 'Order of the day and month in dates', {
-            type: 'select',
+            type: 'radio',
             options: [ [ 'mdy', 'Month Day, Year' ], [ 'dmy', 'Day Month Year' ] ]
           } ],
           [ 'Time Format', 'timeFormat', 'Show times on a 12 or 24 hour clock', {
-            type: 'select',
+            type: 'radio',
             options: [ [ '12', '12 hour (3:45 PM)' ], [ '24', '24 hour (15:45)' ] ]
           } ],
           [ 'Relative Time', 'timeRelative', 'Make timestamps relative to now', {
