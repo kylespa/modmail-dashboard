@@ -24,8 +24,8 @@ export default {
   data () {
     return {
       themes: [
-        ['Light', 'light'],
         ['System', 'system'],
+        ['Light', 'light'],
         ['Discord', 'discord'],
         ['Dark', 'dark'],
         ['Black', 'black']
@@ -56,7 +56,6 @@ export default {
   @include themify {
     box-shadow: 0 0 0 4px themed('primary');
   }
-  border: 2px solid gray;
 }
 
 @media (max-width: $mobile-max) {
@@ -84,5 +83,6 @@ export default {
     background: themed('text');
   }
   background: themed('bg');
+  border: 2px solid gray;
 }
 </style>
