@@ -320,7 +320,7 @@ th:last-child {
 }
 .filter-label {
   @include themify {
-    color: themed('text-muted');
+    color: themed('text');
   }
 }
 .filter-options {
