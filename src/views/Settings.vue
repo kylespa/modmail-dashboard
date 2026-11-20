@@ -41,11 +41,11 @@ export default {
           } ],
           [ 'Date Format', 'dateFormat', 'Order of the day and month in dates. Automatic uses your browser language', {
             type: 'radio',
-            options: [ [ 'auto', `Automatic (${DATE_LABELS[AUTO_DATE]})` ], [ 'mdy', DATE_LABELS.mdy ], [ 'dmy', DATE_LABELS.dmy ] ]
+            options: [ [ 'auto', `Auto` ], [ 'mdy', 'English (US)' ], [ 'dmy', 'English (UK)' ] ]
           } ],
           [ 'Time Format', 'timeFormat', 'Show times on a 12 or 24 hour clock. Automatic uses your browser language', {
             type: 'radio',
-            options: [ [ 'auto', `Automatic (${TIME_LABELS[AUTO_TIME]})` ], [ '12', TIME_LABELS[12] ], [ '24', TIME_LABELS[24] ] ]
+            options: [ [ 'auto', 'Auto' ], [ '12', '12 hour' ], [ '24', '24 hour' ] ]
           } ],
           [ 'Relative Time', 'timeRelative', 'Make timestamps relative to now', {
             type: Boolean
