@@ -320,7 +320,7 @@ th:last-child {
 }
 .filter-label {
   @include themify {
-    color: themed('text');
+    color: themed('text-muted');
   }
 }
 .filter-options {
@@ -332,7 +332,7 @@ th:last-child {
 }
 .filter-option {
   @include themify {
-    color: themed('text');
+    color: themed('text-muted');
   }
   cursor: pointer;
   padding: $spacing * .25rem $spacing * .75rem;
