@@ -35,8 +35,13 @@ export default {
             min: 1,
             max: 100
           } ],
-          [ 'Timestamp Format', 'timeFormat', '<a href="https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table" target="_blank">Unicode Date Symbols</a> to use with timestamps', {
-            type: String
+          [ 'Date Format', 'dateFormat', 'Order of the day and month in dates', {
+            type: 'select',
+            options: [ [ 'mdy', 'Month Day, Year' ], [ 'dmy', 'Day Month Year' ] ]
+          } ],
+          [ 'Time Format', 'timeFormat', 'Show times on a 12 or 24 hour clock', {
+            type: 'select',
+            options: [ [ '12', '12 hour (3:45 PM)' ], [ '24', '24 hour (15:45)' ] ]
           } ],
           [ 'Relative Time', 'timeRelative', 'Make timestamps relative to now', {
             type: Boolean

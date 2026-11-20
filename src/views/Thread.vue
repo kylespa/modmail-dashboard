@@ -66,6 +66,7 @@ import Log from '@/components/Thread/Log.vue'
 import CopyButton from '@/components/Thread/CopyButton.vue'
 import { es } from '@/stream'
 import { processMarkdown } from '@/markdown'
+import { dateFormat } from '@/timeFormats.js'
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
@@ -244,7 +245,7 @@ export default {
       return format(utcToZonedTime(new Date(log.created_at + 'Z'), timeZone), 'yyyy-MM-dd')
     },
     dayLabel (log) {
-      return format(utcToZonedTime(new Date(log.created_at + 'Z'), timeZone), 'MMMM d, yyyy')
+      return format(utcToZonedTime(new Date(log.created_at + 'Z'), timeZone), dateFormat(this.settings))
     },
     updateScroll (ev) {
       let el = ev.target

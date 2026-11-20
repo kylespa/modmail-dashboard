@@ -39,6 +39,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import User from '@/components/User.vue'
 import ImageGallery from '@/components/Thread/ImageGallery.vue'
+import { timeFormat } from '@/timeFormats.js'
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const botID = import.meta.env.VITE_BOT_ID
@@ -80,7 +81,7 @@ export default {
       this.updateRelativeTime()
     } else {
       const localDate = utcToZonedTime(new Date(this.log.created_at + 'Z'), timeZone)
-      this.formattedTime = format(localDate, 'h:mm a')
+      this.formattedTime = format(localDate, timeFormat(this.settings))
     }
   }
 }

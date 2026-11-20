@@ -27,6 +27,17 @@ import { get, isDeveloper } from './api'
 import Sidebar from './components/Sidebar/Sidebar.vue'
 import MobileBar from './components/MobileBar.vue'
 import Loader from './components/Loader.vue'
+import { DATE_FORMATS, TIME_FORMATS } from './timeFormats.js'
+
+// Load a setting that must be one of a fixed set of keys, falling back if invalid
+const loadChoice = (key, choices, fallback) => {
+  try {
+    const value = JSON.parse(localStorage[key] || 'null')
+    return value in choices ? value : fallback
+  } catch {
+    return fallback
+  }
+}
 
 const MOBILE_QUERY = '(max-width: 767px)'
 const DARK_QUERY = '(prefers-color-scheme: dark)'
@@ -49,7 +60,8 @@ export default {
       systemDark: window.matchMedia(DARK_QUERY).matches,
       pageSize: JSON.parse(localStorage.pageSize || '15'),
       recentUserCount: JSON.parse(localStorage.recentUserCount || '15'),
-      timeFormat: JSON.parse(localStorage.timeFormat || '"MMMM dd, yyyy h:mm a"'),
+      dateFormat: loadChoice('dateFormat', DATE_FORMATS, 'mdy'),
+      timeFormat: loadChoice('timeFormat', TIME_FORMATS, '12'),
       timeRelative: JSON.parse(localStorage.timeRelative || 'false'),
       botAvi: JSON.parse(localStorage.botAvi || 'false'),
       devMode: JSON.parse(localStorage.devMode || 'false'),
@@ -91,6 +103,7 @@ export default {
         theme: this.theme,
         pageSize: this.pageSize,
         recentUserCount: this.recentUserCount,
+        dateFormat: this.dateFormat,
         timeFormat: this.timeFormat,
         timeRelative: this.timeRelative,
         botAvi: this.botAvi,

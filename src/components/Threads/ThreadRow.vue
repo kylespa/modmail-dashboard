@@ -34,6 +34,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import User from '@/components/User.vue'
 import CopyButton from '@/components/Thread/CopyButton.vue'
+import { dateTimeFormat } from '@/timeFormats.js'
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
@@ -75,7 +76,7 @@ export default {
   },
   created () {
     const localDate = utcToZonedTime(new Date(this.thread.created_at + 'Z'), timeZone)
-    this.absoluteTime = format(localDate, this.settings.timeFormat)
+    this.absoluteTime = format(localDate, dateTimeFormat(this.settings))
     if (this.settings.timeRelative)
       this.updateRelativeTime()
   },
